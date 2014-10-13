@@ -85,7 +85,6 @@ module.exports = {
     var ting = Ajaxer.getXml({
       url: rssUrl,
       success: function(xml) {
-        console.log(xml);
         self.parseXml(xml, callback);
       },
       error: function(jqXHR, text, err) {
@@ -102,7 +101,12 @@ module.exports = {
     try {
       // Find description tags (cantina title and dinner menus)
       var jsdom = require("jsdom");
-      var $ = require("jquery")(jsdom.jsdom().createWindow());
+      jsdom.env({
+        html: "<html><body></body></html>",
+        scripts: require("jquery")
+      }, function(err, window){
+        var $ = window.jQuery;
+      });
       var descriptions = $(xml).find("description");
       
       // If menu is missing: stop
