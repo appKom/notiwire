@@ -14,12 +14,12 @@ module.exports = {
       console.log('ERROR: Callback is required. In the callback you should insert the results into the DOM.');
       return;
     }
-    var Affiliation = require("./Affiliation.js");
+    var Affiliation = require("./affiliation.js");
     var api = Affiliation.org["online"].hw.apis.coffee;
 
     // Receives the status for the coffee pot
     var self = this;
-    var Ajaxer = require("./Ajaxer.js");//Makes an "instance" of Ajaxer
+    var Ajaxer = require("./ajaxer.js");//Makes an "instance" of Ajaxer
     Ajaxer.getPlainText({
       url: api,
       success: function(data) {
