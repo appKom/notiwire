@@ -9,13 +9,17 @@ module.exports = {
   msgComforting: 'Så så, det er sikkert kaffe :)',
   msgNotification: 'Kaffen er satt på, straks klar :)',
 
-  get: function(pretty, callback) {
+  get: function(pretty, assosiation, callback) {
     if (callback == undefined) {
       console.log('ERROR: Callback is required. In the callback you should insert the results into the DOM.');
       return;
     }
     var Affiliation = require("./affiliation.js");
-    var api = Affiliation.org["online"].hw.apis.coffee;
+    if (Affiliation.org[assosiation] === undefined || Affiliation.org[assosiation].hw === undefined){
+      callback("ERROR: " + assosiation + " does not have a coffeeScript!")
+      return;
+    }
+    var api = Affiliation.org[assosiation].hw.apis.coffee;
 
     // Receives the status for the coffee pot
     var self = this;
