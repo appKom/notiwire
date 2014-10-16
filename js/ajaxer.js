@@ -69,10 +69,15 @@ module.exports = {
       return;
     }
     var self = this;
-    if (params.dataType === "xml")
+    if (params.url.substring(0, 5) === "https")
       var http = require("https");
-    else
+    else if (params.url.substring(0, 4) === "http")
       var http = require("http");
+    else{
+      params.error("Not supported url!");
+      console.log("feil her");
+      return;
+    }
     http.get(params.url, function(response){
       if (params.dataType === "text")
         response.setEncoding("utf8");
