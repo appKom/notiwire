@@ -59,7 +59,7 @@ function getHelpText(){
 	return info + "\n" + info1 + "\n" + info2;
 }
 
-server.listen(80);
+server.listen(8080);
 
 prompt.start();
 
