@@ -70,30 +70,49 @@ module.exports = {
     }
     var self = this;
     if (params.url.substring(0, 5) === "https")
-      var http = require("https");
-    else if (params.url.substring(0, 4) === "http")
-      var http = require("http");
+      var protocol = require("https");
+    else if (params.url.substring(0, 4) === "http"){
+      var protocol = require("http");
+    }
     else{
       params.error("Not supported url!");
       console.log("feil her");
       return;
     }
-    http.get(params.url, function(response){
+    protocol.get(params.url, function(response){
       if (params.dataType === "text")
-        response.setEncoding("utf8");
-      var output = "";
-      response.on("data", function(data){
-        output += data;
-      });
-      response.on("end", function(){
-        params.success(output);
-      });
+        self.getCleanText(params, response);
+      else if (params.dataType === "json"){
+        self.getJSON(params, response);
+      }
+      else{
+        console.log(params.url + " is not valid.");
+      }
       response.on("error", function(err){
         params.error(err);
       })
     });
   },
-
+  getCleanText: function(params, response){
+    response.setEncoding("utf8");
+    var output = "";
+    response.on("data", function(data){
+      output += data;
+    });
+    response.on("end", function(){
+      params.success(output);
+    });
+  },
+  getJSON: function(params, response){
+    response.setEncoding("utf8");
+    var output = undefined;
+    response.on("data", function(data){
+      output = JSON.parse(data);
+    });
+    response.on("end", function(){
+      params.success(output);
+    });
+  },
   // IMPORTANT: This function replaces all <img> tags with <pic>
   cleanHtml: function(html, type) {
     var size = html.length;
