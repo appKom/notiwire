@@ -5,6 +5,14 @@ module.exports = {
 			return;
 		}
 		var Affiliation = require("./affiliation.js");
+		if (Affiliation.org[assosiation] === undefined){
+			callback(assosiation + " has not a lightapi");
+			return;
+		}
+		if (Affiliation.org[assosiation].hw === undefined){
+			callback(assosiation + " has not a lightapi");
+			return;
+		}
 		var lightApi = Affiliation.org[assosiation].hw.apis.light;
 		var Ajaxer = require("./ajaxer.js");
 		Ajaxer.getPlainText({
