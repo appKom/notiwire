@@ -2,13 +2,22 @@ var coffee = require("./coffee.js");
 var cantina = require("./cantina.js");
 var office = require("./office.js");
 var http = require("http");
+var hackerspace = require("./hackerspace.js");
 
 var server = http.createServer(function(req, res){
 	var urlInfo = req.url.split("/");
 	if (urlInfo.length !== 3){
-		if (urlInfo.length == 2 && (urlInfo[1] == "info" || urlInfo[1] == "help")){
-			res.end(getHelpText());
-		}else
+		if (urlInfo.length == 2){
+			if (urlInfo[1] == "info" || urlInfo[1] == "help" || urlInfo[1] == ""){
+				res.end(getHelpText());
+			}
+			else if (urlInfo[1] == "hackerspace"){
+				hackerspace.get(function(isOpen){
+					res.end(isOpen);
+				});
+			} 
+		}
+		else
 			res.end("Something wrong happend!");
 	}
 	else if (urlInfo[1] === "coffee"){
@@ -26,9 +35,10 @@ var server = http.createServer(function(req, res){
 });
 
 function getHelpText(){
-	var info = "write in url: localhost/info1/info2";
-	var info1 = "coffee/linjeforening\noffice/linjeforening";
-	return info + "\n" + info1;
+	var info = "localhost/info/linjeforening";
+	var info1 = "coffee\noffice";
+	var info2 = "localhost/hackerspace";
+	return info + "\n" + info1 + "\n" + info2;
 }
 
 server.listen(80);
