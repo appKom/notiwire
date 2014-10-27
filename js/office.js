@@ -64,7 +64,6 @@ module.exports = {
     // meeting        // current status
     // Møte: appKom   // event title or 'No title'-meeting or nothing
     var self = this;
-
     Ajaxer.getPlainText({
       url: eventApi,
       success: function(data) {
