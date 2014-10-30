@@ -82,7 +82,7 @@ module.exports = {
     var rssUrl = this.feeds[cantina];
 
     var self = this;
-    var ting = Ajaxer.getXml({
+    var ting = Ajaxer.getPlainText({
       url: rssUrl,
       success: function(xml) {
         self.parseXml(xml, callback);
@@ -101,25 +101,20 @@ module.exports = {
     try {
       // Find description tags (cantina title and dinner menus)
       var jsdom = require("jsdom");
-      jsdom.env({
-        html: "<html><body></body></html>",
-        scripts: require("jquery")
-      }, function(err, window){
-        var $ = window.jQuery;
-      });
-      var descriptions = $(xml).find("description");
-      
+      var document = jsdom.jsdom(xml);
+      var window = document.parentWindow;
+      var $ = require("jquery")(window);
+
+      var descriptions = $("description");
       // If menu is missing: stop
       if (descriptions[1] === undefined) {
         callback(self.msgClosed);
         return;
       }
-      
-      var fullWeekDinnerInfo = descriptions[1]['textContent'];
+      var fullWeekDinnerInfo = $(descriptions[1]).html();
       
       // Throw away SiT's very excessive whitespace
       fullWeekDinnerInfo = $.trim(fullWeekDinnerInfo.replace(/[\s\n\r]+/g,' '));
-      
       var today = self.whichDayIsIt();
       if (self.debugDay)
         today = self.debugThisDay;
@@ -279,10 +274,10 @@ module.exports = {
             ], text);
           }
           text = text.trim();
-          text = text.capitalize();
+          // text = text.capitalize();
           text = self.removePunctuationAtEndOfLine(text);
         }
-        text = text.capitalize();
+        // text = text.capitalize();
         if (self.debug) console.log('\nFrom\t"'+dinner.text+'"\nTo\t\t"'+text+'"\n');
         // Add flags
         if (dinner.flags !== null)

@@ -7,6 +7,7 @@ var url = require("url");
 var start = function(handle, route) {
 	var server = http.createServer(function(request, response){
 		var pathname = url.parse(request.url).pathname;
+        response.setHeader("Content-Type", "application/json; charset=utf-8");
 		route(handle, pathname, response);
 	});
 	server.listen(8080);

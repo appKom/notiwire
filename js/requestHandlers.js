@@ -1,11 +1,16 @@
-var coffee = require("./coffee.js");
 var cantina = require("./cantina.js");
-var office = require("./office.js");
+var coffee = require("./coffee.js");
 var hackerspace = require("./hackerspace.js");
-var officeLight = require("./officeLight.js");
 var meetings = require("./meetings.js");
+var office = require("./office.js");
+var officeLight = require("./officeLight.js");
 
 module.exports = {
+    cantina: function(response) {
+        cantina.get('hangaren', function(dinnerObjects) {
+            response.end(JSON.stringify(dinnerObjects), 'utf-8');
+        });
+    },
     hackerspace: function(response) {
         hackerspace.get(function(isOpen){
             response.end(isOpen);
