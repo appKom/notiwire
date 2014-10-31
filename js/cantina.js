@@ -1,3 +1,5 @@
+var xml2js = require('xml2js');
+
 module.exports = {
 
   url: 'https://www.sit.no/middag',
@@ -99,22 +101,20 @@ module.exports = {
   parseXml: function(xml, callback) {
     var self = this;
     try {
-      // Find description tags (cantina title and dinner menus)
-      var jsdom = require("jsdom");
-      var document = jsdom.jsdom(xml);
-      var window = document.parentWindow;
-      var $ = require("jquery")(window);
-
-      var descriptions = $("description");
+      var parseString = xml2js.parseString;
+      var fullWeekDinnerInfo;
+      parseString(xml, function (err, result) {
+        fullWeekDinnerInfo = result['rdf:RDF'].item[0].description[0]; // You're welcome
+      });
       // If menu is missing: stop
-      if (descriptions[1] === undefined) {
+      if (fullWeekDinnerInfo === undefined) {
         callback(self.msgClosed);
         return;
       }
-      var fullWeekDinnerInfo = $(descriptions[1]).html();
       
       // Throw away SiT's very excessive whitespace
-      fullWeekDinnerInfo = $.trim(fullWeekDinnerInfo.replace(/[\s\n\r]+/g,' '));
+      fullWeekDinnerInfo = fullWeekDinnerInfo.replace(/[\s\n\r]+/g,' ');
+      fullWeekDinnerInfo = fullWeekDinnerInfo.trim()
       var today = self.whichDayIsIt();
       if (self.debugDay)
         today = self.debugThisDay;
@@ -145,7 +145,7 @@ module.exports = {
 
   parseTodaysMenu: function(todaysMenu, mondaysCantinaMenu, callback) {
     var self = this;
-    try {
+    // try {
       var dinnerList = todaysMenu.split('<br>');
 
       // Remove empty or irrelevant information (items: first, last, second last)
@@ -274,10 +274,10 @@ module.exports = {
             ], text);
           }
           text = text.trim();
-          // text = text.capitalize();
+          text = self.capitalize(text);
           text = self.removePunctuationAtEndOfLine(text);
         }
-        // text = text.capitalize();
+        text = self.capitalize(text);
         if (self.debug) console.log('\nFrom\t"'+dinner.text+'"\nTo\t\t"'+text+'"\n');
         // Add flags
         if (dinner.flags !== null)
@@ -304,11 +304,11 @@ module.exports = {
       dinnerObjects = this.removeEmptyDinnerObjects(dinnerObjects);
       
       callback(dinnerObjects);
-    }
-    catch (err) {
-      console.lolg('ERROR: problems during deep parsing of todays dinners');
-      callback(self.msgMalformedMenu);
-    }
+    // }
+    // catch (err) {
+    //   console.log('ERROR: problems during deep parsing of todays dinners');
+    //   callback(self.msgMalformedMenu);
+    // }
   },
 
   // The actual Dinner object
@@ -485,5 +485,7 @@ module.exports = {
     }
     return text;
   },
-
+  capitalize: function(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
 }
