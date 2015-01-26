@@ -21,9 +21,10 @@ router.route("/meeting/:affiliation").get(function(req, res){
 
 router.route("/light/:affiliation").get(function(req, res){
     officeLight.get(req.params.affiliation, function(data){
-        res.json({
-            "status": data
-        });
+      res.json({
+          "status": data !== null ? "success" : "error",
+          "data": data
+      });
     });
 });
 

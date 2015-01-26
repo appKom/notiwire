@@ -80,17 +80,17 @@ module.exports = {
       return;
     }
     protocol.get(params.url, function(response){
-      if (params.dataType === "text")
+      if (params.dataType === "text") {
         self.getCleanText(params, response);
+      }
       else if (params.dataType === "json"){
         self.getJSON(params, response);
       }
       else{
         console.log(params.url + " is not valid.");
       }
-      response.on("error", function(err){
+    }).on("error", function(err){
         params.error(err);
-      })
     });
   },
   getCleanText: function(params, response){
