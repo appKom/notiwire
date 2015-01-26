@@ -9,5 +9,6 @@ handle["/coffee"] = requestHandlers.coffee;
 handle["/hackerspace"] = requestHandlers.hackerspace;
 handle["/meetings"] = requestHandlers.meetings;
 handle["/office"] = requestHandlers.office;
+handle["/servant"] = requestHandlers.servant;
 
 server.start(handle, router.route);
