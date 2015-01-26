@@ -22,7 +22,7 @@ module.exports = {
       },
       error: function(jqXHR, err) {
         callback(null);
-      },
+      }
     });
   }
-}
+};
