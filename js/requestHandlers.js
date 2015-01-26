@@ -4,11 +4,18 @@ var hackerspace = require("./hackerspace.js");
 var meetings = require("./meetings.js");
 var office = require("./office.js");
 var officeLight = require("./officeLight.js");
+var servant = require("./servant.js");
 
 module.exports = {
     cantina: function(response) {
         cantina.get('hangaren', function(dinnerObjects) {
             response.end(JSON.stringify(dinnerObjects), 'utf-8');
+        });
+    },
+    servant: function(response){
+        servant.get("online", function(message){
+            response.end(message);
+            console.log("Servant: " + message);
         });
     },
     hackerspace: function(response) {
