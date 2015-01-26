@@ -16,9 +16,11 @@ module.exports = {
     var Affiliation = require("./affiliation.js");
     if (Affiliation.org[affiliation] === undefined){
       callback("ERROR: " + affiliation + " is not defined.");
+      return;
     }
     if (Affiliation.org[affiliation].hw === undefined){
       callback("ERROR: " + affiliation + " has no hardware.");
+      return;
     }
     
     var api = Affiliation.org[affiliation].hw.apis.meetings;
