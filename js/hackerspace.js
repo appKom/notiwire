@@ -42,16 +42,16 @@ module.exports = {
             timeString = 'Stengte ' + prettyTime;
           }
 
-          callback(self.msgPrefix + timeString);
+          callback(timeString);
         }
         else {
           // Empty string returned from API
-          callback(self.msgPrefix + self.msgError);
+          callback(self.msgError);
         }
       },
       error: function(jqXHR, text, err) {
         if (self.debug) console.log('ERROR: Failed to get hackerspace info.');
-        callback(self.msgPrefix + self.msgDisconnected);
+        callback(self.msgDisconnected);
       },
     });
   },
