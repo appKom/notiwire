@@ -1,11 +1,11 @@
 var express = require('express');
 var router = express.Router();
-var office = require("../../js/office.js");
-var cantina = require("../../js/cantina.js");
-var hackerspace = require("../../js/hackerspace.js");
-var coffee = require("../../js/coffee.js");
-var meetings = require("../../js/meetings.js");
-var officeLight = require("../../js/officeLight.js");
+var office = require("../libs/office.js");
+var cantina = require("../libs/cantina.js");
+var hackerspace = require("../libs/hackerspace.js");
+var coffee = require("../libs/coffee.js");
+var meetings = require("../libs/meetings.js");
+var officeLight = require("../libs/officeLight.js");
 /* GET home page. */
 router.get('/office/', function(req, res) {
   res.render('index', { title: 'Express' });
