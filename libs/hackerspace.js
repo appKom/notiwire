@@ -1,5 +1,5 @@
 "use strict";
-var Ajaxer = require("./ajaxer.js");
+var requests = require('./requests');
 
 module.exports = {
   debug: 0,
@@ -22,8 +22,7 @@ module.exports = {
     // Receives the meeting plan for today
     var self = this;
     var data = {};
-    Ajaxer.getJson({
-      url: self.api,
+    requests.json(self.api, {
       success: function(door) {
         if (self.debug) console.log('Raw door:\n\n', door);
 
