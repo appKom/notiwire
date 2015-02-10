@@ -1,3 +1,6 @@
+"use strict";
+var Ajaxer = require("./ajaxer.js");
+
 module.exports = {
   debug: 0,
 
@@ -7,70 +10,37 @@ module.exports = {
   msgPrefix: '<span>Hackerspace:</span> ',
   msgDisconnected: 'Frakoblet fra Hackerspace',
   msgError: 'Malformatert data fra Hackerspace',
+  msgOpen: 'Åpent',
+  msgClosed: 'Stengt',
   
   get: function(callback) {
     if (callback == undefined) {
       console.log('ERROR: Callback is required. In the callback you should insert the results into the DOM.');
       return;
     }
-    /*var key = localStorage.affiliationKey1;
-    if (key !== 'online' && key !== 'abakus') {
-      if (this.debug) console.log('ERROR: data only available for affiliations [online, abakus]');
-      return;
-    }*/
     
     // Receives the meeting plan for today
     var self = this;
-    var Ajaxer = require("./ajaxer");
+    var data = {};
     Ajaxer.getJson({
       url: self.api,
       success: function(door) {
         if (self.debug) console.log('Raw door:\n\n', door);
-        
-        if (door.length >= 1) {
-          var isOpen = door[0].isOpen;
-          
-          var timeString = '';
-          if (isOpen) {
-            var opened = door[0].opened;
-            var prettyTime = self.prettyTime(opened);
-            timeString = 'Åpnet ' + prettyTime;
-          }
-          else {
-            var closed = door[0].closed;
-            var prettyTime = self.prettyTime(closed);
-            timeString = 'Stengte ' + prettyTime;
-          }
 
-          callback(timeString);
+        if (typeof door === 'object') {
+          data.open = door.isOpen.door;
         }
         else {
           // Empty string returned from API
-          callback(self.msgError);
+          data.error = self.msgError;
         }
+        callback(data);
       },
       error: function(jqXHR, text, err) {
         if (self.debug) console.log('ERROR: Failed to get hackerspace info.');
-        callback(self.msgDisconnected);
-      },
+        data.error = self.msgDisconnected;
+        callback(data);
+      }
     });
-  },
-
-  prettyTime: function(then) {
-    var now = new Date().getTime();
-    var diff = Math.floor((now - then) / 1000); // diff in seconds
-    if (diff >= 3600) {
-      return 'for ' + (diff < 7200 ? '1 time' : Math.floor(diff / 3600) + ' timer') + ' siden';
-    }
-    else if (diff >= 60) {
-      return 'for ' + (diff < 120 ? '1 minutt' : Math.floor(diff / 60) + ' minutter') + ' siden';
-    }
-    else if (diff >= 0) {
-      return 'for ' + (diff == 1 ? '1 sekund' : diff + ' sekunder') + ' siden';
-    }
-    else {
-      return 'i fremtiden (ha en fin reise!)';
-    }
-  },
-
-}
+  }
+};

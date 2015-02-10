@@ -46,8 +46,8 @@ router.route('/office/:affiliation').get(function(req, res) {
 });
 
 router.route('/hackerspace').get(function(req, res) {
-  hackerspace.get(function(message) {
-    res.json({'message': message});
+  hackerspace.get(function(data) {
+    res.json(data);
   });
 });
 

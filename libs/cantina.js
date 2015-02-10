@@ -1,3 +1,4 @@
+var Ajaxer = require("./ajaxer.js");
 var xml2js = require('xml2js');
 
 module.exports = {
@@ -78,7 +79,6 @@ module.exports = {
       return;
     }
 
-    var Ajaxer = require("./ajaxer.js");
 
     cantina = cantina.toLowerCase();
     var rssUrl = this.feeds[cantina];
