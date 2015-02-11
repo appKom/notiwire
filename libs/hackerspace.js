@@ -1,17 +1,14 @@
 "use strict";
 var requests = require('./requests');
 
-module.exports = {
+var Hackerspace = {
   debug: 0,
 
   web: 'http://hackerspace.idi.ntnu.no/',
   api: 'http://hackerspace.idi.ntnu.no/api/door',
   
-  msgPrefix: '<span>Hackerspace:</span> ',
   msgDisconnected: 'Frakoblet fra Hackerspace',
   msgError: 'Malformatert data fra Hackerspace',
-  msgOpen: 'Åpent',
-  msgClosed: 'Stengt',
   
   get: function(callback) {
     if (callback == undefined) {
@@ -43,3 +40,5 @@ module.exports = {
     });
   }
 };
+
+module.exports = Hackerspace;

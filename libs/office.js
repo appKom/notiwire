@@ -1,11 +1,12 @@
-module.exports = {
-  debug: 0,
+var Affiliation = require('./affiliation');
+var requests = require('./requests');
+
+Office = {
+  debug: 1, 
   debugStatus: {enabled: 0, string: 'coffee\nDebugging office status'},
 
   // Light limit, 0-860 is ON, 860-1023 is OFF
   lightLimit: 860,
-  Affiliation: undefined,
-  Ajaxer: undefined,
   // Basic statuses have titles and messages (icons are fetched from affiliation)
   statuses: {
     'error': {title: 'Oops', color: 'LightGray', message: 'Klarte ikke hente kontorstatus'},
@@ -28,28 +29,7 @@ module.exports = {
       console.log('ERROR: Callback is required. In the callback you should insert the results into the DOM.');
       return;
     }
-    Affiliation = require("./affiliation.js");
-    Ajaxer = require("./ajaxer.js");
-
-    if (Affiliation.org[assosiation] === undefined || !Affiliation.org[assosiation].hw) {
-      if (this.debug) console.log('ERROR: affiliation without hw-features tried checking office status');
-      callback(assosiation + " is not valid");
-      return;
-    }
-
-    var self = this;
-    this.getEventData(assosiation, function(status, message) {
-      
-      if (status == 'free' || self.debugOpenOrClosed()) {
-        // No events are active, check lights to find open or closed
-        self.getLightData(assosiation, callback);
-      }
-      else {
-        // An event is active, either meeting or a food status
-        if (self.debug) console.log('Office:\n- status is', status, '\n- message is', message);
-        callback(status, message);
-      }
-    });
+    // Remove later
   },
 
   getEventData: function(assosiation, callback) {
@@ -57,15 +37,19 @@ module.exports = {
       console.log('ERROR: Callback is required. In the callback you should insert the results into the DOM.');
       return;
     }
-
+    var self = this;
+    // Missing support for office status
+    console.log(assosiation);
+    if(Affiliation.org[assosiation].hw === undefined) {
+      callback.error(self.statuses['error'].message);
+      return;
+    }
     var eventApi = Affiliation.org[assosiation].hw.apis.event;
     
     // Receives info on current event from Onlines servers (without comments)
     // meeting        // current status
     // Møte: appKom   // event title or 'No title'-meeting or nothing
-    var self = this;
-    Ajaxer.getPlainText({
-      url: eventApi,
+    requests.get(eventApi, {
       success: function(data) {
 
         // Debug particular status?
@@ -78,14 +62,22 @@ module.exports = {
 
         if (self.debug) console.log('status is "'+status+'" and message is "'+message+'"');
 
+        // empty status message?
+        if (status.trim() === '') {
+          status = 'error';
+        }
+        status = status.trim();
         // empty meeting message?
-        if (message === "") {
-          if (status == 'meeting') {
-            message = self.statuses['meeting'].message;
+        if (message.trim() === '') {
+          if (status.match(/^(error|open|closed|meeting)$/i) !== null) {
+            message = self.statuses[status].message;
           }
         }
-        else {
-          message = message.trim();
+        message = message.trim();
+
+        // Unavailable calendars will be treated as empty (free status)
+        if (message.indexOf('does not have a calendar for') !== -1) {
+          status = 'free';
         }
 
         // Temporary support for the old system, backwards compatibility
@@ -142,8 +134,7 @@ module.exports = {
 
     // Receives current light intensity from the office: OFF 0-lightLimit-1023 ON
     var self = this;
-    Ajaxer.getPlainText({
-      url: lightApi,
+    requests.get(lightApi, {
       success: function(data) {
         var lights = false;
 
@@ -156,17 +147,16 @@ module.exports = {
 
         if (lights || debugStatus == 'open') {
           if (self.debug) console.log('Office:\n- status is open\n- message is', self.statuses['open'].message);
-          callback('open', self.statuses['open'].message);
         }
         else {
           if (self.debug) console.log('Office:\n- status is closed\n- message is', self.statuses['closed'].message);
-          callback('closed', self.statuses['closed'].message);
         }
+        callback(lights);
       },
       error: function(jqXHR, err) {
         if (self.debug) console.log('ERROR: Failed to get light data.');
-        callback('error', self.statuses['error'].message);
-      },
+        callback(null);
+      }
     });
   },
 
@@ -177,6 +167,7 @@ module.exports = {
       }
     }
     return false;
-  },
+  }
+};
 
-}
+module.exports = Office;
