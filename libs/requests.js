@@ -6,9 +6,7 @@ var xml2js = require('xml2js');
 var Requests = function() {
 
     this.json = function(options, params) {
-        if(typeof options === 'string') {
-            options = {url: options};
-        }
+        options = this.urlToOptions(options);
         options.json = true;
         this.get(options, params);
     };
@@ -25,7 +23,10 @@ var Requests = function() {
     };
 
     this.get = function(options, params) {
-
+        options = this.urlToOptions(options);
+        if(typeof options.headers  == 'undefined') {
+            options.headers = {'User-Agent': 'Online Notiwire (https://github.com/appKom/notiwire2)'};
+        }
         request(options, function(error, response, body) {
             if(!error && response.statusCode == 200) {
                 params.success(body);
@@ -34,6 +35,13 @@ var Requests = function() {
                 params.error(body);
             }
         });
+    };
+
+    this.urlToOptions = function(options) {
+        if(typeof options === 'string') {
+            options = {url: options};
+        }
+        return options;
     };
 };
 
