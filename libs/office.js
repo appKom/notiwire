@@ -21,7 +21,7 @@ Office = {
     'coffee': {title: 'Kaffekos', color: 'NavajoWhite', icon: './img/icon-coffee.png'},
     'pizza': {title: 'Pizza', color: 'NavajoWhite', icon: './img/icon-pizza.png', image: './img/image-pizza.png'},
     'taco': {title: 'Taco', color: 'NavajoWhite', icon: './img/icon-taco.png', image: './img/image-taco.png'},
-    'waffle': {title: 'Vafler', color: 'NavajoWhite', icon: './img/icon-waffle.png', image: './img/image-waffle.png'},
+    'waffle': {title: 'Vafler', color: 'NavajoWhite', icon: './img/icon-waffle.png', image: './img/image-waffle.png'}
   },
 
   get: function(assosiation, callback) {
@@ -38,10 +38,11 @@ Office = {
       return;
     }
     var self = this;
-    // Missing support for office status
-    console.log(assosiation);
+    var responseData = {};
     if(Affiliation.org[assosiation].hw === undefined) {
-      callback.error(self.statuses['error'].message);
+      // Missing support for office status
+      responseData.error = self.statuses['error'].message;
+      callback(responseData);
       return;
     }
     var eventApi = Affiliation.org[assosiation].hw.apis.event;
@@ -79,43 +80,29 @@ Office = {
         if (message.indexOf('does not have a calendar for') !== -1) {
           status = 'free';
         }
+        status = status.trim();
+        // Set the status from fetched data
+        switch(status) {
 
-        // Temporary support for the old system, backwards compatibility
-        if (!isNaN(status)) {
-          switch(Number(status)) {
-            case 0: callback('free'); break;
-            case 1: callback('meeting', message); break;
-            case 2: callback('waffle', message); break;
-            case 3:
-            default: callback('error', self.statuses['error'].message);
-          }
+          case 'free': callback('free'); break;
+
+          case 'meeting': callback('meeting', message); break;
+
+          case 'bun': callback('bun', message); break;
+          case 'cake': callback('cake', message); break;
+          case 'coffee': callback('coffee', message); break;
+          case 'waffle': callback('waffle', message); break;
+          case 'pizza': callback('pizza', message); break;
+          case 'taco': callback('taco', message); break;
+
+          case 'error':
+          default: callback('error', self.statuses['error'].message);
         }
-        else {
-          status = status.trim();
-          // Set the status from fetched data
-          switch(status) {
-            
-            case 'free': callback('free'); break;
-
-            case 'meeting': callback('meeting', message); break;
-            
-            case 'bun': callback('bun', message); break;
-            case 'cake': callback('cake', message); break;
-            case 'coffee': callback('coffee', message); break;
-            case 'waffle': callback('waffle', message); break;
-            case 'pizza': callback('pizza', message); break;
-            case 'taco': callback('taco', message); break;
-            
-            case 'error':
-            default: callback('error', self.statuses['error'].message);
-          }
-        }
-
       },
       error: function(jqXHR, text, err) {
         if (self.debug) console.log('ERROR: Failed to get event data.');
         callback('error', self.statuses['error'].message);
-      },
+      }
     });
   },
 
@@ -125,6 +112,13 @@ Office = {
       return;
     }
 
+    var responseData = {};
+      if(Affiliation.org[assosiation].hw === undefined) {
+        // Missing support for office status
+        responseData.error = 'Failed to get light data';
+        callback(responseData);
+        return;
+    }
     var lightApi = Affiliation.org[assosiation].hw.apis.light;
 
     var debugStatus = null;
