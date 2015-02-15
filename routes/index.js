@@ -38,7 +38,7 @@ router.route("/coffee/:affiliation").get(function(req, res){
 router.route('/office/:affiliation').get(function(req, res) {
     async.parallel([
         function(callback) {
-          coffee.get(false, req.params.affiliation, function(data){
+          coffee.get(req.params.affiliation, function(data){
               callback(null, {name: 'coffee', value: data});
           });
         },
