@@ -24,7 +24,7 @@ var Requests = function() {
 
     this.get = function(options, params) {
         options = this.urlToOptions(options);
-        if(typeof options.headers  == 'undefined') {
+        if(options.headers  == undefined) {
             options.headers = {'User-Agent': 'Online Notiwire (https://github.com/appKom/notiwire2)'};
         }
         request(options, function(error, response, body) {
