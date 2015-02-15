@@ -1,4 +1,7 @@
-module.exports = {
+var Affiliation = require('./affiliation.js');
+var requests = require('./requests.js');
+
+Coffee = {
   debug: 0,
   debugString: "200\n1. March 14:28:371",
 
@@ -14,18 +17,17 @@ module.exports = {
       console.log('ERROR: Callback is required. In the callback you should insert the results into the DOM.');
       return;
     }
-    var Affiliation = require("./affiliation.js");
-    if (Affiliation.org[assosiation] === undefined || Affiliation.org[assosiation].hw === undefined){
-      callback("ERROR: " + assosiation + " does not have a coffeeScript!")
+    var responseData = {};
+    if(!Affiliation.hasHardware(assosiation)) {
+      responseData.error = 'Missing support';
+      callback(responseData);
       return;
     }
     var api = Affiliation.org[assosiation].hw.apis.coffee;
 
     // Receives the status for the coffee pot
     var self = this;
-    var Ajaxer = require("./ajaxer.js");//Makes an "instance" of Ajaxer
-    Ajaxer.getPlainText({
-      url: api,
+    requests.get(api, {
       success: function(data) {
 
         // If coffee debugging is enabled
@@ -39,42 +41,25 @@ module.exports = {
           var pots = Number(pieces[0]);
           var ageString = pieces[1];
 
-          // Coffee made today?
-          if (self.isMadeToday(ageString)) {
+          var unix = Date.parse(ageString);
+          var date = new Date(unix);
 
-            // Calculate minute difference from right now
-            var now = new Date();
-            var coffeeTime = String(ageString.match(/\d+:\d+:\d+/)).split(':');
-            var then = new Date(now.getFullYear(), now.getMonth(), now.getDate(), coffeeTime[0], coffeeTime[1]);
-            var age = self.minuteDiff(then);
+          responseData.unix = unix;
+          responseData.date = date;
+          responseData.pots = pots;
 
-            // If pretty strings are requested
-            if (pretty) {
-              age = self.prettyAgeString(age, coffeeTime);
-              pots = self.prettyPotsString(pots);
-            }
-
-            // Call it back
-            callback(pots, age);
-          }
-          else {
-            // Coffee was not made today
-            if (pretty) {
-              callback(self.msgNoPots, self.msgNoCoffee);
-            }
-            else {
-              callback(0, 0);
-            }
-          }
+          callback(responseData);
         } catch (err) {
           if (self.debug) console.log('ERROR: Coffee format is wrong:', err);
-          callback(self.msgFormatError, self.msgComforting);
+          responseData.error = 'Failed to parse date';
+          callback(responseData);
         }
       },
-      error: function(jqXHR, text, err) {
+      error: function(err, data) {
         if (self.debug) console.log('ERROR: Failed to get coffee pot status.');
-        callback(self.msgConnectionError, self.msgComforting);
-      },
+        responseData.error = 'Failed to get status';
+        callback(responseData);
+      }
     });
   },
 
@@ -180,6 +165,7 @@ module.exports = {
     else {
       if (this.debug) console.log('ERROR: coffee notification displayed less than four minutes ago');
     }
-  },
+  }
+};
 
-}
+module.exports = Coffee;

@@ -1418,5 +1418,9 @@ var Affiliation = {
       return 0;
     }
   },
+  hasHardware: function(affiliation) {
+    return Affiliation.org[affiliation] !== undefined && Affiliation.org[affiliation].hw !== undefined;
+  }
+};
 
-}
+module.exports = Affiliation;

@@ -39,7 +39,7 @@ Office = {
     }
     var self = this;
     var responseData = {};
-    if(Affiliation.org[assosiation].hw === undefined) {
+    if(!Affiliation.hasHardware(assosiation)) {
       // Missing support for office status
       responseData.error = self.statuses['error'].message;
       callback(responseData);
@@ -113,9 +113,9 @@ Office = {
     }
 
     var responseData = {};
-      if(Affiliation.org[assosiation].hw === undefined) {
-        // Missing support for office status
-        responseData.error = 'Failed to get light data';
+      if(!Affiliation.hasHardware(assosiation)) {
+        // Missing support for light status
+        responseData.error = 'Missing support';
         callback(responseData);
         return;
     }
@@ -138,18 +138,13 @@ Office = {
         else {
           lights = data.match(/(on|true|på)/gi) !== null;
         }
-
-        if (lights || debugStatus == 'open') {
-          if (self.debug) console.log('Office:\n- status is open\n- message is', self.statuses['open'].message);
-        }
-        else {
-          if (self.debug) console.log('Office:\n- status is closed\n- message is', self.statuses['closed'].message);
-        }
-        callback(lights);
+        responseData.lights = lights;
+        callback(responseData);
       },
-      error: function(jqXHR, err) {
+      error: function(err, data) {
         if (self.debug) console.log('ERROR: Failed to get light data.');
-        callback(null);
+        responseData.error = 'Failed to get light data';
+        callback(responseData);
       }
     });
   },

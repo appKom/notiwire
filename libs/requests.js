@@ -32,7 +32,7 @@ var Requests = function() {
                 params.success(body);
             }
             else {
-                params.error(body);
+                params.error(error, body);
             }
         });
     };
