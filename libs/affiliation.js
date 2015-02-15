@@ -1,4 +1,6 @@
-module.exports = {
+"use strict";
+
+var Affiliation = {
   debug: 0,
   
   // IMPORTANT: Keep the same order of affiliations here as in options.html
@@ -51,6 +53,38 @@ module.exports = {
 
   org: {
 
+    // DEBUG (separate affiliation that fetches data from Notipis / Notiwire in DEBUG mode)
+
+    'DEBUG': {
+      name: 'DEBUG',
+      key: 'DEBUG',
+      web: 'http://example.com/',
+      feed: 'http://dusken.no/feed/',
+      logo: './org/DEBUG/logo.png',
+      icon: './org/DEBUG/icon.png',
+      symbol: './org/DEBUG/symbol.png',
+      placeholder: './org/DEBUG/placeholder.png',
+      palette: 'grey',
+      hw: {
+        office: 'DEBUG-kontoret',
+        apis: {
+          coffee: 'http://passoa.online.ntnu.no/notifier/DEBUG/coffee',
+          light: 'http://passoa.online.ntnu.no/notifier/DEBUG/light',
+          event: 'http://passoa.online.ntnu.no/notifier/DEBUG/office',
+          servant: 'http://passoa.online.ntnu.no/notifier/DEBUG/servant',
+          meetings: 'http://passoa.online.ntnu.no/notifier/DEBUG/meetings',
+        },
+        statusIcons: {
+          open: './org/DEBUG/icon-open.png',
+          closed: './org/DEBUG/icon-closed.png',
+          meeting: './org/DEBUG/icon-meeting.png',
+        },
+      },
+      getImage: function(link, callback) {
+        Images.get(this, link, callback, {newsSelector:'div.col-xs-12', domainUrl:'dusken.no'});
+      },
+    },
+
     // Linjeforeninger Gløshaugen
     
     'abakus': {
@@ -68,9 +102,9 @@ module.exports = {
         apis: {
           coffee: 'http://kaffe.abakus.no/coffee.txt',
           light: 'http://informatikk.org/abakus/lys.txt',
-          event: 'https://online.ntnu.no/notifier/abakus/office',
+          event: 'http://passoa.online.ntnu.no/notifier/abakus/office',
           servant: 'http://informatikk.org/abakus/servant_list.txt', // TODO
-          meetings: 'https://online.ntnu.no/notifier/abakus/meetings',
+          meetings: 'http://passoa.online.ntnu.no/notifier/abakus/meetings',
         },
         statusIcons: {
           // TODO: update when Abakus gets office status feature
@@ -191,9 +225,9 @@ module.exports = {
         apis: {
           coffee: 'http://pi.deltahouse.no/coffee.txt',
           light: 'http://pi.deltahouse.no/office.txt',
-          event: 'https://online.ntnu.no/notifier/delta/office',
-          servant: 'https://online.ntnu.no/notifier/delta/servant',
-          meetings: 'https://online.ntnu.no/notifier/delta/meetings',
+          event: 'http://passoa.online.ntnu.no/notifier/delta/office',
+          servant: 'http://passoa.online.ntnu.no/notifier/delta/servant',
+          meetings: 'http://passoa.online.ntnu.no/notifier/delta/meetings',
         },
         statusIcons: {
           open: './org/delta/icon-open.png',
@@ -232,6 +266,27 @@ module.exports = {
       symbol: './org/hc/symbol.png',
       placeholder: './org/hc/placeholder.png',
       palette: 'yellow',
+      hw: {
+        office: 'HC-kontoret',
+        apis: {
+          coffee: 'http://passoa.online.ntnu.no/notifier/hc/coffee',
+          light: 'http://passoa.online.ntnu.no/notifier/hc/light',
+          event: 'http://passoa.online.ntnu.no/notifier/hc/office',
+          servant: 'http://passoa.online.ntnu.no/notifier/hc/servant',
+          meetings: 'http://passoa.online.ntnu.no/notifier/hc/meetings',
+        },
+        statusIcons: {
+          open: './org/hc/icon-open.png',
+          closed: './org/hc/icon-closed.png',
+          meeting: './org/hc/icon-meeting.png',
+        },
+        statusMessages: {
+          open: 'Velkommen inn!',
+          closed: 'Finn et komitemedlem for å åpne',
+          meeting: 'Kontoret er opptatt',
+        },
+        memePath: './org/hc/meme/',
+      },
       // images extracted from feed content
     },
 
@@ -343,8 +398,6 @@ module.exports = {
           url: self.web,
           success: function(html) {
             var count = 0;
-
-            console.log($(html).find('div.news'));
             
             // Add each item from news tags
             if ($(html).find('div.news').length != 0) {
@@ -354,13 +407,13 @@ module.exports = {
                   
                   // The popular fields
                   post.title = $(this).find('h5 a').text();
-                  post.link = $(this).find('h5 a').prop('href');
+                  post.link = $(this).find('h5 a').attr('href');
                   post.description = $(this).eq(0).find('div:first').text().trim().replace(/\s+/g, ' ');
                   post.author = $(this).next().find('span i').text().trim();
                   post.image = $(this).find('pic').attr('src');
 
                   // Link fixing
-                  post.link = self.web + post.link
+                  post.link = self.web + post.link;
 
                   // Image fixing
                   if (typeof post.image === 'undefined')
@@ -368,7 +421,6 @@ module.exports = {
                   else
                     post.image = self.web + post.image;
 
-                  console.log('\ntitle:',post.title,'\nlink:',post.link,'\ndesc:',post.description,'\nauthor:',post.author,'\nimage:',post.image);
                   posts[count++] = post;
                 }
               });
@@ -402,9 +454,9 @@ module.exports = {
         apis: {
           coffee: 'http://draug.online.ntnu.no/coffee.txt',
           light: 'http://draug.online.ntnu.no/lys.txt',
-          event: 'https://online.ntnu.no/notifier/online/office',
-          servant: 'https://online.ntnu.no/notifier/online/servant',
-          meetings: 'https://online.ntnu.no/notifier/online/meetings',
+          event: 'http://passoa.online.ntnu.no/notifier/online/office',
+          servant: 'http://passoa.online.ntnu.no/notifier/online/servant',
+          meetings: 'http://passoa.online.ntnu.no/notifier/online/meetings',
         },
         statusIcons: {
           open: './org/online/icon-open.png',
@@ -432,7 +484,7 @@ module.exports = {
 
             if (articles) {
               // Add each article from the API...
-              for (i in articles) {
+              for (var i in articles) {
                 var article = articles[i];
                 // ...as long as there is more room for posts
                 if (count < posts.length) {
@@ -446,6 +498,7 @@ module.exports = {
                   posts[count++] = post;
                   // Postprocess description to remove markdown stuff (crude method)
                   post.description = post.description.replace(/(####|###|\*\*)/gi, '');
+                  post.description = post.description.replace(/\[(.*)\]\(.*\)/gi, '$1');
                 }
               }
             }
@@ -474,11 +527,11 @@ module.exports = {
       hw: {
         office: 'Nablakontoret',
         apis: {
-          coffee: 'https://online.ntnu.no/notifier/nabla/coffee',
-          event: 'https://online.ntnu.no/notifier/nabla/office',
-          light: 'https://online.ntnu.no/notifier/nabla/light',
-          meetings: 'https://online.ntnu.no/notifier/nabla/meetings',
-          servant: 'https://online.ntnu.no/notifier/nabla/servant',
+          coffee: 'http://passoa.online.ntnu.no/notifier/nabla/coffee',
+          event: 'http://passoa.online.ntnu.no/notifier/nabla/office',
+          light: 'http://passoa.online.ntnu.no/notifier/nabla/light',
+          meetings: 'http://passoa.online.ntnu.no/notifier/nabla/meetings',
+          servant: 'http://passoa.online.ntnu.no/notifier/nabla/servant',
         },
         statusIcons: {
           open: './org/nabla/icon-open.png',
@@ -487,11 +540,28 @@ module.exports = {
         },
         statusMessages: {
           open: 'Velkommen inn!',
+          closed: 'Finn et komitemedlem for å åpne kontoret',
+          meeting: 'Det er møte på møterommet',
         },
         memePath: './org/nabla/meme/',
       },
       getImage: function(link, callback) {
         Images.get(this, link, callback, {newsSelector:'div.row div.col-md-8', domainUrl:'nabla.no'});
+      },
+    },
+
+    'placebo': {
+      name: 'MF Placebo',
+      key: 'placebo',
+      web: 'http://mfplacebo.no/',
+      feed: 'http://mfplacebo.no/feed/',
+      logo: './org/placebo/logo.png',
+      icon: './org/placebo/icon.png',
+      symbol: './org/placebo/symbol.png',
+      placeholder: './org/placebo/placeholder.png',
+      palette: 'red',
+      getImage: function(link, callback) {
+        Images.get(this, link, callback, {newsSelector:'article'});
       },
     },
 
@@ -508,16 +578,21 @@ module.exports = {
       hw: {
         office: "Solanstua",
         apis: {
-          coffee: 'https://online.ntnu.no/notifier/solan/coffee',
-          event: 'https://online.ntnu.no/notifier/solan/office',
-          light: 'https://online.ntnu.no/notifier/solan/light',
-          meetings: 'https://online.ntnu.no/notifier/solan/meetings',
-          servant: 'https://online.ntnu.no/notifier/solan/servant',
+          coffee: 'http://passoa.online.ntnu.no/notifier/solan/coffee',
+          event: 'http://passoa.online.ntnu.no/notifier/solan/office',
+          light: 'http://passoa.online.ntnu.no/notifier/solan/light',
+          meetings: 'http://passoa.online.ntnu.no/notifier/solan/meetings',
+          servant: 'http://passoa.online.ntnu.no/notifier/solan/servant',
         },
         statusIcons: {
           open: './org/solan/icon-open.png',
           closed: './org/solan/icon-closed.png',
           meeting: './org/solan/icon-meeting.png',
+        },
+        statusMessages: {
+          open: 'Lyset er på ved kaffemaskinen :)',
+          closed: 'Det er mørkt ved kaffemaskinen :(',
+          meeting: 'Møterommet er opptatt',
         },
         memePath: './org/solan/meme/',
       },
@@ -582,7 +657,7 @@ module.exports = {
       icon: './org/dhs/icon.png',
       symbol: './org/dhs/symbol.png',
       placeholder: './org/dhs/placeholder.png',
-      palette: 'blue',
+      palette: 'purple',
       getImage: function(links, callback) {
         Images.get(this, links, callback);
       },
@@ -606,8 +681,8 @@ module.exports = {
     'erudio': {
       name: 'Erudio',
       key: 'erudio',
-      web: 'http://www.erudiontnu.org/',
-      feed: 'http://www.erudiontnu.org/?feed=rss2',
+      web: 'http://erudiontnu.blogspot.com/',
+      feed: 'http://erudiontnu.blogspot.com/feeds/posts/default?alt=rss',
       logo: './org/erudio/logo.png',
       icon: './org/erudio/icon.png',
       symbol: './org/erudio/symbol.png',
@@ -673,21 +748,6 @@ module.exports = {
       symbol: './org/jump cut/symbol.png',
       placeholder: './org/jump cut/placeholder.png',
       palette: 'grey',
-      getImages: function(links, callback) {
-        Images.get(this, links, callback);
-      },
-    },
-
-    'ludimus': {
-      name: 'Ludimus',
-      key: 'ludimus',
-      web: 'http://ludimus.org/',
-      feed: 'http://ludimus.org/feed/',
-      logo: './org/ludimus/logo.png',
-      icon: './org/ludimus/icon.png',
-      symbol: './org/ludimus/symbol.png',
-      placeholder: './org/ludimus/placeholder.png',
-      palette: 'red',
       getImages: function(links, callback) {
         Images.get(this, links, callback);
       },
@@ -1085,7 +1145,7 @@ module.exports = {
     },
 
     'soma': {
-      name: 'Soma',
+      name: 'SOMA',
       key: 'soma',
       web: 'http://somantnu.blogspot.com/',
       feed: 'http://somantnu.blogspot.com/feeds/posts/default',
@@ -1126,7 +1186,7 @@ module.exports = {
       palette: 'grey',
       // Using getImage instead because Dusken posts the article to the RSS feed before the frontpage.
       getImage: function(link, callback) {
-        Images.get(this, link, callback, {newsSelector:'div.span10', domainUrl:'dusken.no'});
+        Images.get(this, link, callback, {newsSelector:'div.col-xs-12', domainUrl:'dusken.no'});
       },
     },
 
@@ -1134,7 +1194,7 @@ module.exports = {
       name: 'Universitetsavisa',
       key: 'universitetsavisa',
       web: 'http://www.universitetsavisa.no/',
-      feed: 'http://www.universitetsavisa.no/?service=rss',
+      feed: 'http://www.universitetsavisa.no/?widgetName=polarisFeeds&widgetId=40853&getXmlFeed=true',
       logo: './org/universitetsavisa/logo.png',
       icon: './org/universitetsavisa/icon.png',
       symbol: './org/universitetsavisa/symbol.png',
@@ -1153,7 +1213,9 @@ module.exports = {
       symbol: './org/gemini/symbol.png',
       placeholder: './org/gemini/placeholder.png',
       palette: 'cyan',
-      // getImages unnecessary, Gemini uses <bilde>-tag for images
+      getImage: function(link, callback) {
+        Images.get(this, link, callback, {newsSelector:'header.entry-header'});
+      },
     },
 
     'adressa': {
@@ -1183,9 +1245,7 @@ module.exports = {
       symbol: './org/samfundet/symbol.png',
       placeholder: './org/samfundet/placeholder.png',
       palette: 'red',
-      getImage: function(link, callback) {
-        Images.get(this, link, callback, {newsSelector:'div#banner'});
-      },
+      // getImages unnecessary, Samfundet uses <link>-tag for images
     },
 
     // Studentdemokrati
