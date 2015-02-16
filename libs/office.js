@@ -38,11 +38,11 @@ Office = {
       return;
     }
     var self = this;
-    var responseData = {};
+    this.responseData = {};
     if(!Affiliation.hasHardware(assosiation)) {
       // Missing support for office status
-      responseData.error = self.statuses['error'].message;
-      callback(responseData);
+      this.responseData.error = self.statuses['error'].message;
+      callback(this.responseData);
       return;
     }
     var eventApi = Affiliation.org[assosiation].hw.apis.event;
@@ -79,25 +79,24 @@ Office = {
         // Unavailable calendars will be treated as empty (free status)
         if (message.indexOf('does not have a calendar for') !== -1) {
           status = 'free';
+          message = 'Mangler støtte';
         }
         status = status.trim();
         // Set the status from fetched data
-        switch(status) {
-
-          case 'free': callback('free'); break;
-
-          case 'meeting': callback('meeting', message); break;
-
-          case 'bun': callback('bun', message); break;
-          case 'cake': callback('cake', message); break;
-          case 'coffee': callback('coffee', message); break;
-          case 'waffle': callback('waffle', message); break;
-          case 'pizza': callback('pizza', message); break;
-          case 'taco': callback('taco', message); break;
-
-          case 'error':
-          default: callback('error', self.statuses['error'].message);
+        console.log(status);
+        self.responseData.status = status;
+        self.responseData.message = message;
+        if(self.foods[status] != undefined) {
+          var food = self.foods[status];
+          self.responseData.title = food.title;
+          self.responseData.color = food.color;
+          self.responseData.icon = food.icon;
+          self.responseData.image = food.image;
         }
+        else if(self.statuses[status] != undefined) {
+          self.responseData.color = self.statuses[status].color;
+        }
+        callback(self.responseData);
       },
       error: function(jqXHR, text, err) {
         if (self.debug) console.log('ERROR: Failed to get event data.');
@@ -122,9 +121,9 @@ Office = {
     var lightApi = Affiliation.org[assosiation].hw.apis.light;
 
     var debugStatus = null;
-    if (this.debugOpenOrClosed())
-      if (this.debugStatus.string.startsWith('closed'))
-        debugStatus = 'closed';
+    // if (this.debugOpenOrClosed())
+      // if (this.debugStatus.string.startsWith('closed'))
+      //   debugStatus = 'closed';
 
     // Receives current light intensity from the office: OFF 0-lightLimit-1023 ON
     var self = this;

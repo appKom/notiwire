@@ -183,8 +183,8 @@ Cantina = {
         }
         else {
           console.lolg('ERROR: problems during initial parsing of todays dinner');
-
-          callback(self.msgMalformedMenu);
+          self.responseData.error = self.msgMalformedMenu;
+          callback(self.responseData);
           return;
         }
         // The dinner.index represents the current dinners index in SiT's RSS feeds
@@ -233,8 +233,8 @@ Cantina = {
         }
         else {
           if (self.debug) console.log('WARNING: no info found on monday either');
-          this.responseData.message = this.msgClosed;
-          callback(this.responseData);
+          self.responseData.message = self.msgClosed;
+          callback(self.responseData);
         }
         return;
       }
