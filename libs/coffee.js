@@ -12,7 +12,7 @@ Coffee = {
     }
     var responseData = {};
     if(!Affiliation.hasHardware(assosiation)) {
-      responseData.error = 'Missing support';
+      responseData.error = 'Manglende støtte';
       callback(responseData);
       return;
     }
@@ -44,13 +44,13 @@ Coffee = {
           callback(responseData);
         } catch (err) {
           if (self.debug) console.log('ERROR: Coffee format is wrong:', err);
-          responseData.error = 'Failed to parse date';
+          responseData.error = 'Klarte ikke lese status';
           callback(responseData);
         }
       },
       error: function(err, data) {
         if (self.debug) console.log('ERROR: Failed to get coffee pot status.');
-        responseData.error = 'Failed to get status';
+        responseData.error = 'Klarte ikke hente status';
         callback(responseData);
       }
     });

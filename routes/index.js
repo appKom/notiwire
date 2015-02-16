@@ -28,22 +28,22 @@ router.route('/office/:affiliation').get(function(req, res) {
         },
         function(callback) {
           office.getEventData(req.params.affiliation, function(data) {
-              callback(null, {name: 'office', value: data});
+              callback(null, {name: 'event', value: data});
           });
         },
-          function(callback) {
+        function(callback) {
           office.getLightData(req.params.affiliation, function(data) {
-              callback(null, {name: 'light', value: data});
+              callback(null, {name: 'status', value: data});
           });
         }
-        ],
-        function(err, results) {
-          var data = {};
-          results.forEach(function(result) {
-            data[result.name] = result.value;
-          });
-          res.json(data);
-        }
+      ],
+      function(err, results) {
+        var data = {};
+        results.forEach(function(result) {
+          data[result.name] = result.value;
+        });
+        res.json(data);
+      }
     );  
 });
 

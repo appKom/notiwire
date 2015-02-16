@@ -115,7 +115,7 @@ Office = {
     var responseData = {};
       if(!Affiliation.hasHardware(assosiation)) {
         // Missing support for light status
-        responseData.error = 'Missing support';
+        responseData.error = 'Manglende støtte';
         callback(responseData);
         return;
     }
@@ -143,7 +143,7 @@ Office = {
       },
       error: function(err, data) {
         if (self.debug) console.log('ERROR: Failed to get light data.');
-        responseData.error = 'Failed to get light data';
+        responseData.error = 'Klarte ikke hente status';
         callback(responseData);
       }
     });
