@@ -13,7 +13,7 @@ var Requests = function() {
 
     this.xml = function(options, params) {
         this.get(options, {
-            success: function() {
+            success: function(xml) {
                 xml2js.parseString(xml, function (err, result) {
                     params.success(result);
                 });

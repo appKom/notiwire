@@ -19,22 +19,6 @@ router.get('/office/', function(req, res) {
   res.render('index', { title: 'Express' });
 });
 
-router.route("/meeting/:affiliation").get(function(req, res){
-    meetings.get(req.params.affiliation, function(meeting){
-        res.json({
-          "status": meeting
-        });
-    });
-});
-
-router.route("/coffee/:affiliation").get(function(req, res){
-    coffee.get(false, req.params.affiliation, function(pots, age){
-        res.json({
-          "status":pots,
-          "time":age
-        });
-    });
-});
 router.route('/office/:affiliation').get(function(req, res) {
     async.parallel([
         function(callback) {
@@ -71,8 +55,9 @@ router.route('/hackerspace').get(function(req, res) {
 });
 
 router.route('/cantina/:location').get(function(req, res) {
-    cantina.get(req.params.location, function(dinnerObjects) {
-        res.json(dinnerObjects);
+    cantina.get(req.params.location, function(data) {
+        httpErrorStatus(data, res);
+        res.json(data);
     });
 });
 

@@ -1,7 +1,7 @@
-var Ajaxer = require("./ajaxer.js");
+var requests = require('./requests');
 var xml2js = require('xml2js');
 
-module.exports = {
+Cantina = {
 
   url: 'https://www.sit.no/middag',
   msgClosed: 'Ingen publisert meny i dag',
@@ -73,27 +73,29 @@ module.exports = {
       console.log('ERROR: Callback is required. In the callback you should insert the results into the DOM.');
       return;
     }
+    this.responseData = {};
     if (this.feeds[cantina] === undefined) {
       if (this.debug) console.log('ERROR: '+this.msgUnsupportedCantina);
-      callback('');
+      responseData.error = msgUnsupportedCantina;
+      callback(this.responseData);
       return;
     }
 
-
     cantina = cantina.toLowerCase();
     var rssUrl = this.feeds[cantina];
+    this.responseData.name = this.names[cantina];
 
     var self = this;
-    var ting = Ajaxer.getPlainText({
-      url: rssUrl,
+    requests.xml(rssUrl, {
       success: function(xml) {
         self.parseXml(xml, callback);
       },
-      error: function(jqXHR, text, err) {
+      error: function(err, data) {
         console.lolg('ERROR: '+self.msgConnectionError);
-        callback(self.msgConnectionError);
-      },
-    })
+        self.responseData.error = msgConnectionError;
+        callback(self.responseData);
+      }
+    });
   },
 
   // Private
@@ -101,20 +103,17 @@ module.exports = {
   parseXml: function(xml, callback) {
     var self = this;
     try {
-      var parseString = xml2js.parseString;
-      var fullWeekDinnerInfo;
-      parseString(xml, function (err, result) {
-        fullWeekDinnerInfo = result['rdf:RDF'].item[0].description[0]; // You're welcome
-      });
+      var fullWeekDinnerInfo = xml['rdf:RDF'].item[0].description[0]; // You're welcome
       // If menu is missing: stop
       if (fullWeekDinnerInfo === undefined) {
-        callback(self.msgClosed);
+        self.responseData.error = self.msgClosed;
+        callback(responseData);
         return;
       }
       
       // Throw away SiT's very excessive whitespace
       fullWeekDinnerInfo = fullWeekDinnerInfo.replace(/[\s\n\r]+/g,' ');
-      fullWeekDinnerInfo = fullWeekDinnerInfo.trim()
+      fullWeekDinnerInfo = fullWeekDinnerInfo.trim();
       var today = self.whichDayIsIt();
       if (self.debugDay)
         today = self.debugThisDay;
@@ -131,6 +130,7 @@ module.exports = {
       }
       // If no dinners for today were found (saturday / sunday)
       if (todaysMenu === self.msgClosed && !self.debugText) {
+        self.responseData.status = self.msgClosed;
         callback(self.msgClosed);
         return;
       }
@@ -139,7 +139,8 @@ module.exports = {
     }
     catch (err) {
       console.log('ERROR: problems during parsing of dinner xml');
-      callback(self.msgMalformedMenu + ': ' + err);
+      self.responseData.error = self.msgMalformedMenu;
+      callback(self.responseData);
     }
   },
 
@@ -182,6 +183,7 @@ module.exports = {
         }
         else {
           console.lolg('ERROR: problems during initial parsing of todays dinner');
+
           callback(self.msgMalformedMenu);
           return;
         }
@@ -231,7 +233,8 @@ module.exports = {
         }
         else {
           if (self.debug) console.log('WARNING: no info found on monday either');
-          callback(this.msgClosed);
+          this.responseData.status = this.msgClosed;
+          callback(this.responseData);
         }
         return;
       }
@@ -302,8 +305,8 @@ module.exports = {
 
       // If any objects have empty text fields, remove them
       dinnerObjects = this.removeEmptyDinnerObjects(dinnerObjects);
-      
-      callback(dinnerObjects);
+      this.responseData.menu = dinnerObjects;
+      callback(this.responseData);
     // }
     // catch (err) {
     //   console.log('ERROR: problems during deep parsing of todays dinners');
@@ -488,4 +491,6 @@ module.exports = {
   capitalize: function(str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
   }
-}
+};
+
+module.exports = Cantina;
