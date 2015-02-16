@@ -137,7 +137,7 @@ Office = {
         else {
           lights = data.match(/(on|true|på)/gi) !== null;
         }
-        responseData.lights = lights;
+        responseData.open = lights;
         callback(responseData);
       },
       error: function(err, data) {
