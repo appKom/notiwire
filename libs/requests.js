@@ -27,6 +27,7 @@ var Requests = function() {
         if(options.headers  == undefined) {
             options.headers = {'User-Agent': 'Online Notiwire (https://github.com/appKom/notiwire2)'};
         }
+        options.timeout = 6000;
         request(options, function(error, response, body) {
             if(!error && response.statusCode == 200) {
                 params.success(body);

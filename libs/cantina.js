@@ -76,7 +76,7 @@ Cantina = {
     this.responseData = {};
     if (this.feeds[cantina] === undefined) {
       if (this.debug) console.log('ERROR: '+this.msgUnsupportedCantina);
-      responseData.error = msgUnsupportedCantina;
+      this.responseData.error = this.msgUnsupportedCantina;
       callback(this.responseData);
       return;
     }
@@ -92,7 +92,7 @@ Cantina = {
       },
       error: function(err, data) {
         console.lolg('ERROR: '+self.msgConnectionError);
-        self.responseData.error = msgConnectionError;
+        self.responseData.error = self.msgConnectionError;
         callback(self.responseData);
       }
     });
@@ -130,7 +130,7 @@ Cantina = {
       }
       // If no dinners for today were found (saturday / sunday)
       if (todaysMenu === self.msgClosed && !self.debugText) {
-        self.responseData.status = self.msgClosed;
+        self.responseData.message = self.msgClosed;
         callback(self.msgClosed);
         return;
       }
@@ -233,7 +233,7 @@ Cantina = {
         }
         else {
           if (self.debug) console.log('WARNING: no info found on monday either');
-          this.responseData.status = this.msgClosed;
+          this.responseData.message = this.msgClosed;
           callback(this.responseData);
         }
         return;
