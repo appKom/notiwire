@@ -1,3 +1,4 @@
+"use strict";
 var requests = require('./requests');
 var xml2js = require('xml2js');
 
@@ -18,36 +19,63 @@ Cantina = {
   // Expected format of debugThisText: "Seirett med ris (G): 8 kroner" -> "food: price"
   // Note1: Set the price of debugThisText low to show it first cuz the list is sorted by price
 
+  // Documentation of SiT's RSS feeds for foodz
+  // https://www.sit.no/rss.ap?thisId=1457 SiT Kafé Dragvoll - EMPTY
+  // https://www.sit.no/rss.ap?thisId=1476 Matbaren Idrettssenteret - EMPTY
+  // https://www.sit.no/rss.ap?thisId=31661 Gløshaugen
+  // https://www.sit.no/rss.ap?thisId=31862 SiT Storkiosk Dragvoll - EMPTY
+  // https://www.sit.no/rss.ap?thisId=36441 Dragvoll
+  // https://www.sit.no/rss.ap?thisId=36444 Hangaren
+  // https://www.sit.no/rss.ap?thisId=36447 Realfag
+  // https://www.sit.no/rss.ap?thisId=36450 Tyholt
+  // https://www.sit.no/rss.ap?thisId=36453 Kalvskinnet
+  // https://www.sit.no/rss.ap?thisId=36456 Moholt - EMPTY
+  // https://www.sit.no/rss.ap?thisId=37228 Øya
+  // https://www.sit.no/rss.ap?thisId=38753 Tungasletta
+  // https://www.sit.no/rss.ap?thisId=38798 DMMH - EMPTY
+  // https://www.sit.no/rss.ap?thisId=38910 Rotvoll - EMPTY
+  // https://www.sit.no/rss.ap?thisId=40227 Elektro - EMPTY
+  // https://www.sit.no/rss.ap?thisId=41886 Elgeseter
+  // https://www.sit.no/rss.ap?thisId=42015 MTFS - EMPTY
+  // https://www.sit.no/rss.ap?thisId=42222 lunch - MTFS - EMPTY
+  // https://www.sit.no/rss.ap?thisId=42276 lunch - Elgeseter
+  // https://www.sit.no/rss.ap?thisId=42330 lunch - Dragvoll
+  // https://www.sit.no/rss.ap?thisId=42654 lunch - Kalvskinnet - EMPTY
+  // https://www.sit.no/rss.ap?thisId=42816 lunch - Øya
+  // https://www.sit.no/rss.ap?thisId=42924 lunch - Tungasletta
+
   // Feeds
   // To single out days use 'https://www.sit.no/rss.ap?thisId=36441&ma=on' - gives 'mandag' alone
   feeds: {
-    'dmmh': 'https://www.sit.no/rss.ap?thisId=38798',
-    'dragvoll': 'https://www.sit.no/rss.ap?thisId=36441',
-    'elektro': 'https://www.sit.no/rss.ap?thisId=40227',
-    'hangaren': 'https://www.sit.no/rss.ap?thisId=36444',
-    'kalvskinnet': 'https://www.sit.no/rss.ap?thisId=36453',
-    // 'kjel': 'https://www.sit.no/rss.ap?thisId=31681', // Har aldri innhold
-    'moholt': 'https://www.sit.no/rss.ap?thisId=36456',
-    // 'mtfs': '...', // Mangler
-    'ranheimsveien': 'https://www.sit.no/rss.ap?thisId=38753',
-    'realfag': 'https://www.sit.no/rss.ap?thisId=36447',
-    'rotvoll': 'https://www.sit.no/rss.ap?thisId=38910',
-    'tyholt': 'https://www.sit.no/rss.ap?thisId=36450',
-    // 'oya': '...', // Mangler
+    'dmmh':           'https://www.sit.no/rss.ap?thisId=38798',
+    'dragvoll':       'https://www.sit.no/rss.ap?thisId=36441',
+    'elektro':        'https://www.sit.no/rss.ap?thisId=40227', // EMPTY
+    'elgeseter':      'https://www.sit.no/rss.ap?thisId=42276', // Using lunch menu because dinner is EMPTY
+    'hangaren':       'https://www.sit.no/rss.ap?thisId=36444',
+    'kalvskinnet':    'https://www.sit.no/rss.ap?thisId=36453',
+    'kjel':           'https://www.sit.no/rss.ap?thisId=31681', // EMPTY
+    'moholt':         'https://www.sit.no/rss.ap?thisId=36456',
+    'mtfs':           'https://www.sit.no/rss.ap?thisId=42015', // EMPTY
+    'realfag':        'https://www.sit.no/rss.ap?thisId=36447',
+    'rotvoll':        'https://www.sit.no/rss.ap?thisId=38910',
+    'tungasletta':    'https://www.sit.no/rss.ap?thisId=38753',
+    'tyholt':         'https://www.sit.no/rss.ap?thisId=36450',
+    'oya':            'https://www.sit.no/rss.ap?thisId=37228', // EMPTY
   },
 
   names: {
     'dmmh': 'DMMH',
     'dragvoll': 'Dragvoll',
     'elektro': 'Elektro',
+    'elgeseter': 'Elgeseter',
     'hangaren': 'Hangaren',
     'kalvskinnet': 'Kalvskinnet',
     'kjel': 'Kjelhuset',
     'moholt': 'Moholt',
     'mtfs': 'MTFS',
-    'ranheimsveien': 'Ranheimsveien',
     'realfag': 'Realfag',
     'rotvoll': 'Rotvoll',
+    'tungasletta': 'Tungasletta',
     'tyholt': 'Tyholt',
     'oya': 'Øya',
     'storkiosk dragvoll': 'Storkiosk Dragvoll',
@@ -70,12 +98,12 @@ Cantina = {
 
   get: function (cantina, callback) {
     if (callback === undefined) {
-      console.log('ERROR: Callback is required. In the callback you should insert the results into the DOM.');
+      console.error('Callback is required.');
       return;
     }
     this.responseData = {};
     if (this.feeds[cantina] === undefined) {
-      if (this.debug) console.log('ERROR: '+this.msgUnsupportedCantina);
+      if (this.debug) console.error(this.msgUnsupportedCantina);
       this.responseData.error = this.msgUnsupportedCantina;
       callback(this.responseData);
       return;
@@ -91,7 +119,7 @@ Cantina = {
         self.parseXml(xml, callback);
       },
       error: function(err, data) {
-        console.lolg('ERROR: '+self.msgConnectionError);
+        console.error(self.msgConnectionError);
         self.responseData.error = self.msgConnectionError;
         callback(self.responseData);
       }
@@ -120,7 +148,7 @@ Cantina = {
       var dinnerForEachDay = fullWeekDinnerInfo.split('<b>');
       var todaysMenu = self.msgClosed;
       var mondaysCantinaMenu = '';
-      for (dinnerDay in dinnerForEachDay) {
+      for (var dinnerDay in dinnerForEachDay) {
         // Find todays dinner menu
         if (dinnerForEachDay[dinnerDay].lastIndexOf(today, 0) === 0)
           todaysMenu = dinnerForEachDay[dinnerDay];
@@ -138,7 +166,7 @@ Cantina = {
       self.parseTodaysMenu(todaysMenu, mondaysCantinaMenu, callback);
     }
     catch (err) {
-      console.log('ERROR: problems during parsing of dinner xml');
+      console.error('Problems during parsing of dinner xml');
       self.responseData.error = self.msgMalformedMenu;
       callback(self.responseData);
     }
@@ -182,7 +210,7 @@ Cantina = {
           }
         }
         else {
-          console.lolg('ERROR: problems during initial parsing of todays dinner');
+          console.error('Problems during initial parsing of todays dinner');
           self.responseData.error = self.msgMalformedMenu;
           callback(self.responseData);
           return;
@@ -349,10 +377,10 @@ Cantina = {
 
   removePartsAfter: function(keys, text) {
     var self = this;
-    for (key in keys) {
-      if (self.debugText) console.log(keys[key] + (keys[key].length<4?'\t\t':'\t') + ':: ' + text);
-      if (text.indexOf(keys[key]) !== -1)
-        text = text.split(keys[key])[0];
+    for (var i in keys) {
+      if (self.debugText) console.log(keys[i] + (keys[i].length<4?'\t\t':'\t') + ':: ' + text);
+      if (text.indexOf(keys[i]) !== -1)
+        text = text.split(keys[i])[0];
     }
     return text;
   },
@@ -362,9 +390,9 @@ Cantina = {
     // We'll do this twice in case some keywords are laid out after eachother.
     // Example: "Raspeballer med frisk salat", where "med" and "frisk" are keywords.
     for (var i=0; i<2; i++) {
-      for (key in keys) {
-        if (self.debugText) console.log(keys[key] + (keys[key].length<4?'\t\t':'\t') + ':: ' + text);
-        var spacedKey = ' '+keys[key];
+      for (var i in keys) {
+        if (self.debugText) console.log(keys[i] + (keys[i].length<4?'\t\t':'\t') + ':: ' + text);
+        var spacedKey = ' '+keys[i];
         if (self.endsWith(spacedKey, text)) {
           var pieces = text.split(' ');
           text = pieces.splice(0,pieces.length-1).join(' ');
@@ -459,7 +487,7 @@ Cantina = {
   expandAbbreviations: function(text) {
     if (this.debugText) console.log('Abbrev.\t:: ' + text);
     // Replace wordings like 'm', 'm/' with the actual word, make sure there is one space on either side of the word
-    return text.replace(/([a-zæøåÆØÅ]*)[ ,\.]\/?m(\/| |\b|[æøåÆØÅ]) ?/gi, '$1 med ');
+    return text.replace(/([a-zæøåÆØÅ]*)[ ,\.]\/?m(\/|\s) ?/gi, '$1 med ');
   },
 
   removeFoodHomeMade: function(text) {
