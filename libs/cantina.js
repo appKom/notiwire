@@ -2,7 +2,7 @@
 var requests = require('./requests');
 var xml2js = require('xml2js');
 
-Cantina = {
+var Cantina = {
 
   url: 'https://www.sit.no/middag',
   msgClosed: 'Ingen publisert meny i dag',
