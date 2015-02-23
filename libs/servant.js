@@ -1,3 +1,5 @@
+"use strict";
+
 module.exports = {
   debug: 0,
   debugString: '11:00-12:00 Steinar Hagen\n12:00-13:00 Espen Skarsbø Kristoffersen Olsen\n13:00-14:00 Aina Elisabeth Thunestveit',
@@ -35,11 +37,12 @@ module.exports = {
 
         // If it's an actual servant with a time slot like this:
         // 12:00-13:00: Michael Johansen
+        var pieces, timeSlot, servantName;
         if (currentServant.match(/\d+:\d+\-\d+:\d+/)) {
           // Match out the name from the line
-          var pieces = currentServant.match(/(\d+:\d+\-\d+:\d+) ([0-9a-zA-ZæøåÆØÅ \-]+)/);
-          var timeSlot = pieces[1];
-          var servantName = pieces[2];
+          pieces = currentServant.match(/(\d+:\d+\-\d+:\d+) ([0-9a-zA-ZæøåÆØÅ \-]+)/);
+          timeSlot = pieces[1];
+          servantName = pieces[2];
 
           // If we are currently within the specified timeslot "12:00-13:00"
           var timePieces = timeSlot.split("-"); // ["12:00", "13:00"]
@@ -66,9 +69,9 @@ module.exports = {
         // 10.2-14.2 Michael Johansen
         else if (currentServant.match(/\d+\.\d+\-\d+\.\d+/)) {
           // Match out the name from the line
-          var pieces = currentServant.match(/(\d+\.\d+\-\d+\.\d+) (.*)/);
-          var timeSlot = pieces[1];
-          var servantName = pieces[2];
+          pieces = currentServant.match(/(\d+\.\d+\-\d+\.\d+) (.*)/);
+          timeSlot = pieces[1];
+          servantName = pieces[2];
 
           // Assume we are within the correct dates
           servantName = self.shortenServantName(servantName);
@@ -82,7 +85,7 @@ module.exports = {
       error: function(jqXHR, text, err) {
         if (self.debug) console.log('ERROR: Failed to get current servant.');
         callback(self.msgError);
-      },
+      }
     });
   },
 
@@ -106,5 +109,5 @@ module.exports = {
       }
     }
     return name;
-  },
-}
+  }
+};

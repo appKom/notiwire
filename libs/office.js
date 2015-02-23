@@ -1,7 +1,9 @@
+"use strict";
+
 var Affiliation = require('./affiliation');
 var requests = require('./requests');
 
-Office = {
+var Office = {
   debug: 1, 
   debugStatus: {enabled: 0, string: 'coffee\nDebugging office status'},
 
@@ -12,7 +14,7 @@ Office = {
     'error': {title: 'Oops', color: 'LightGray', message: 'Klarte ikke hente kontorstatus'},
     'open': {title: 'Åpent', color: 'LimeGreen', message: 'Gratis kaffe og te til alle!'},
     'closed': {title: 'Lukket', color: 'yellow', message: 'Finn et komitemedlem'},
-    'meeting': {title: 'Møte', color: 'red', message: 'Kontoret er opptatt'}, // meetings usually get message from calendar entries
+    'meeting': {title: 'Møte', color: 'red', message: 'Kontoret er opptatt'} // meetings usually get message from calendar entries
   },
   // Food statuses have titles and icons (messages exist as calendar titles)
   foods: {

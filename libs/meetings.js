@@ -1,3 +1,5 @@
+"use strict";
+
 module.exports = {
   debug: 0,
   debugApi: 0,
@@ -37,7 +39,7 @@ module.exports = {
         if (self.debugString)
           meetings = self.debugThisString;
 
-        if (meetings != '') {
+        if (meetings !== '') {
           // Prettify todays meetings
           var prettyMeetings = self.prettifyTodaysMeetings(meetings);
           if (self.debug) console.log('Pretty meetings:', prettyMeetings);
@@ -52,7 +54,7 @@ module.exports = {
       error: function(jqXHR, text, err) {
         if (self.debug) console.log('ERROR: Failed to get todays meeting plan.');
         callback(self.msgError);
-      },
+      }
     });
   },
 
@@ -78,6 +80,5 @@ module.exports = {
     meetings = meetings.replace(/23:(30|59)/g, '24');
     if (this.debug) console.log(':30\t::', meetings);
     return meetings;
-  },
-
-}
+  }
+};

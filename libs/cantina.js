@@ -60,7 +60,7 @@ var Cantina = {
     'rotvoll':        'https://www.sit.no/rss.ap?thisId=38910',
     'tungasletta':    'https://www.sit.no/rss.ap?thisId=38753',
     'tyholt':         'https://www.sit.no/rss.ap?thisId=36450',
-    'oya':            'https://www.sit.no/rss.ap?thisId=37228', // EMPTY
+    'oya':            'https://www.sit.no/rss.ap?thisId=37228' // EMPTY
   },
 
   names: {
@@ -84,7 +84,7 @@ var Cantina = {
     'idretts. dragvoll': 'Idretts. Dragvoll',
     'sito dragvoll': 'Sito Dragvoll',
     'sito realfag': 'Sito Realfag',
-    'sito stripa': 'Sito Stripa',
+    'sito stripa': 'Sito Stripa'
   },
 
   // SiTs new format for ajaxing dinner:
@@ -228,7 +228,7 @@ var Cantina = {
           price = price.trim();
 
           // Two price classes? Choose the cheapest
-          if (price.match(/ |\//) != null) { // Split by space or slash
+          if (price.match(/ |\//) !== null) { // Split by space or slash
             // Find delimiter
             var delimiter = '/'; // Assume split by slash
             if (price.indexOf(' ') !== -1)
@@ -236,9 +236,9 @@ var Cantina = {
             // Split and compare prices
             var price1 = price.split(delimiter)[0].match(/\d+/g);
             var price2 = price.split(delimiter)[1].match(/\d+/g);
-            if (price1 == null)
+            if (price1 === null)
               price = price2;
-            else if (price2 == null)
+            else if (price2 === null)
               price = price1;
             else
               price = ( Number(price1) < Number(price2) ? price1 : price2 );
@@ -276,7 +276,7 @@ var Cantina = {
         text = self.removeTextualFoodFlags(text);
         dinner.flags = self.getFoodFlags(text);
         // If it's a message (dinner without a price) we'll just trim it
-        if (dinner.price == null) {
+        if (dinner.price === null) {
           // Even messages (like " God sommer ") needs trimming
           text = text.trim();
         }
@@ -301,7 +301,7 @@ var Cantina = {
               'gresk',
               'inkl','inkludert',
               'krydret',
-              'strimla','strimlet',
+              'strimla','strimlet'
             ], text);
           }
           text = text.trim();
@@ -327,7 +327,7 @@ var Cantina = {
         // Missing prices are turned into 0's by the sort function,
         // - Set prices back to null to make sure it doesn't count as a number
         dinnerObjects.forEach(function(dinner){
-          if (dinner.price == 0) dinner.price = null;
+          if (dinner.price === 0) dinner.price = null;
         });
       }
 
@@ -366,7 +366,7 @@ var Cantina = {
   removeEmptyDinnerObjects: function(dinnerObjects) {
     var nonEmptyDinnerObjects = [];
     dinnerObjects.forEach(function(dinner) {
-      if (dinner.text.trim() != '') {
+      if (dinner.text.trim() !== '') {
         nonEmptyDinnerObjects.push(dinner);
       }
     });
@@ -390,9 +390,9 @@ var Cantina = {
     // We'll do this twice in case some keywords are laid out after eachother.
     // Example: "Raspeballer med frisk salat", where "med" and "frisk" are keywords.
     for (var i=0; i<2; i++) {
-      for (var i in keys) {
-        if (self.debugText) console.log(keys[i] + (keys[i].length<4?'\t\t':'\t') + ':: ' + text);
-        var spacedKey = ' '+keys[i];
+      for (var j in keys) {
+        if (self.debugText) console.log(keys[j] + (keys[j].length<4?'\t\t':'\t') + ':: ' + text);
+        var spacedKey = ' '+keys[j];
         if (self.endsWith(spacedKey, text)) {
           var pieces = text.split(' ');
           text = pieces.splice(0,pieces.length-1).join(' ');
@@ -406,9 +406,11 @@ var Cantina = {
 
   addMissingFoodFlags: function(text) {
     // Sometimes, SiT will write "vegetar" in the text, but forget to add the food flag (V)
-    if (text.match(/(ingen|ikke) vegetar/gi) === null)
-      if (text.match(/vegetar/gi) !== null)
+    if (text.match(/(ingen|ikke) vegetar/gi) === null) {
+      if(text.match(/vegetar/gi) !== null) {
         text += '(V)';
+      }
+    }
     if (text.match(/((uten |ikke )gluten)|gluten ?fri/gi) !== null)
       text += '(G)';
     if (text.match(/((uten |ikke )laktose)|laktose ?fri/gi) !== null)

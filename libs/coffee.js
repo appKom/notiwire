@@ -1,7 +1,8 @@
+"use strict";
 var Affiliation = require('./affiliation.js');
 var requests = require('./requests.js');
 
-Coffee = {
+var Coffee = {
   debug: 0,
   debugString: "200\n1. March 14:28:371",
 
