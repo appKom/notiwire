@@ -5,6 +5,7 @@ var xml2js = require('xml2js');
 var Cantina = {
 
   url: 'https://www.sit.no/middag',
+  api: 'https://www.sit.no/rss.ap?thisId=',
   msgClosed: 'Ingen publisert meny i dag',
   msgConnectionError: 'Frakoblet fra sit.no/rss',
   msgUnsupportedCantina: 'Kantinen støttes ikke',
@@ -47,20 +48,20 @@ var Cantina = {
   // Feeds
   // To single out days use 'https://www.sit.no/rss.ap?thisId=36441&ma=on' - gives 'mandag' alone
   feeds: {
-    'dmmh':           'https://www.sit.no/rss.ap?thisId=38798',
-    'dragvoll':       'https://www.sit.no/rss.ap?thisId=36441',
-    'elektro':        'https://www.sit.no/rss.ap?thisId=40227', // EMPTY
-    'elgeseter':      'https://www.sit.no/rss.ap?thisId=42276', // Using lunch menu because dinner is EMPTY
-    'hangaren':       'https://www.sit.no/rss.ap?thisId=36444',
-    'kalvskinnet':    'https://www.sit.no/rss.ap?thisId=36453',
-    'kjel':           'https://www.sit.no/rss.ap?thisId=31681', // EMPTY
-    'moholt':         'https://www.sit.no/rss.ap?thisId=36456',
-    'mtfs':           'https://www.sit.no/rss.ap?thisId=42015', // EMPTY
-    'realfag':        'https://www.sit.no/rss.ap?thisId=36447',
-    'rotvoll':        'https://www.sit.no/rss.ap?thisId=38910',
-    'tungasletta':    'https://www.sit.no/rss.ap?thisId=38753',
-    'tyholt':         'https://www.sit.no/rss.ap?thisId=36450',
-    'oya':            'https://www.sit.no/rss.ap?thisId=37228' // EMPTY
+    'dmmh':           38798,
+    'dragvoll':       36441,
+    'elektro':        40227, // EMPTY
+    'elgeseter':      42276, // Using lunch menu because dinner is EMPTY
+    'hangaren':       36444,
+    'kalvskinnet':    36453,
+    'kjel':           31681, // EMPTY
+    'moholt':         36456,
+    'mtfs':           42015, // EMPTY
+    'realfag':        36447,
+    'rotvoll':        38910,
+    'tungasletta':    38753,
+    'tyholt':         36450,
+    'oya':            37228 // EMPTY
   },
 
   names: {
@@ -110,7 +111,7 @@ var Cantina = {
     }
 
     cantina = cantina.toLowerCase();
-    var rssUrl = this.feeds[cantina];
+    var rssUrl = this.api + this.feeds[cantina];
     this.responseData.name = this.names[cantina];
 
     var self = this;
