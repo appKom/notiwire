@@ -1,6 +1,7 @@
 "use strict";
-var requests = require('./requests');
 var xml2js = require('xml2js');
+var hours = require('./hours');
+var requests = require('./requests');
 
 var Cantina = {
 
@@ -117,7 +118,12 @@ var Cantina = {
     var self = this;
     requests.xml(rssUrl, {
       success: function(xml) {
-        self.parseXml(xml, callback);
+        // Getting opening hours
+        hours.get(cantina, function(data) {
+          self.responseData.hours = data;
+          // Parse menu xml
+          self.parseXml(xml, callback);
+        });
       },
       error: function(err, data) {
         console.error(self.msgConnectionError);
