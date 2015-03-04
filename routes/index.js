@@ -4,7 +4,7 @@ var router = express.Router();
 
 var office = require("../libs/office.js");
 var Cantina = require("../libs/cantina.js");
-var hackerspace = require("../libs/hackerspace.js");
+var Hackerspace = require("../libs/hackerspace.js");
 var coffee = require("../libs/coffee.js");
 var meetings = require("../libs/meetings.js");
 
@@ -48,6 +48,7 @@ router.route('/office/:affiliation').get(function(req, res) {
 });
 
 router.route('/hackerspace').get(function(req, res) {
+  var hackerspace = new Hackerspace();
   hackerspace.get(function(data) {
     httpErrorStatus(data, res);
     res.json(data);

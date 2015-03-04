@@ -1,44 +1,38 @@
 "use strict";
 var requests = require('./requests');
 
-var Hackerspace = {
-  debug: 0,
+var Hackerspace = function() {
+  this.debug = 0;
 
-  web: 'http://hackerspace.idi.ntnu.no/',
-  api: 'http://hackerspace.idi.ntnu.no/api/door',
+  this.web = 'http://hackerspace.idi.ntnu.no/';
+  this.api = 'http://hackerspace.idi.ntnu.no/api/door';
   
-  msgDisconnected: 'Frakoblet fra Hackerspace',
-  msgError: 'Malformatert data fra Hackerspace',
+  this.msgDisconnected = 'Frakoblet fra Hackerspace';
+  this.msgError = 'Malformatert data fra Hackerspace';
+  this.responseData = {};
+};
   
-  get: function(callback) {
-    if (callback == undefined) {
-      console.log('ERROR: Callback is required. In the callback you should insert the results into the DOM.');
-      return;
-    }
-    
-    // Receives the meeting plan for today
-    var self = this;
-    var data = {};
-    requests.json(self.api, {
-      success: function(door) {
-        if (self.debug) console.log('Raw door:\n\n', door);
+Hackerspace.prototype.get = function(callback) {
+  var self = this;
+  requests.json(self.api, {
+    success: function(door) {
+      if (self.debug) console.log('Raw door:\n\n', door);
 
-        if (typeof door === 'object') {
-          data.open = door.isOpen.door;
-        }
-        else {
-          // Empty string returned from API
-          data.error = self.msgError;
-        }
-        callback(data);
-      },
-      error: function(jqXHR, text, err) {
-        if (self.debug) console.log('ERROR: Failed to get hackerspace info.');
-        data.error = self.msgDisconnected;
-        callback(data);
+      if (typeof door === 'object') {
+        self.responseData.open = door.isOpen.door;
       }
-    });
-  }
+      else {
+        // Empty string returned from API
+        self.responseData.error = self.msgError;
+      }
+      callback(self.responseData);
+    },
+    error: function(jqXHR, text, err) {
+      if (self.debug) console.log('ERROR: Failed to get hackerspace info.');
+      data.error = self.msgDisconnected;
+      callback(self.responseData);
+    }
+  });
 };
 
 module.exports = Hackerspace;
