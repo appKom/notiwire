@@ -5,7 +5,7 @@ var router = express.Router();
 var office = require("../libs/office.js");
 var Cantina = require("../libs/cantina.js");
 var Hackerspace = require("../libs/hackerspace.js");
-var coffee = require("../libs/coffee.js");
+var Coffee = require("../libs/coffee.js");
 var meetings = require("../libs/meetings.js");
 
 var httpErrorStatus = function(data, res) {
@@ -22,6 +22,7 @@ router.get('/', function(req, res) {
 router.route('/office/:affiliation').get(function(req, res) {
   async.parallel([
     function(callback) {
+      var coffee = new Coffee();
       coffee.get(req.params.affiliation, function(data){
         callback(null, {name: 'coffee', value: data});
       });
