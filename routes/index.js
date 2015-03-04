@@ -3,7 +3,7 @@ var express = require('express');
 var router = express.Router();
 
 var office = require("../libs/office.js");
-var cantina = require("../libs/cantina.js");
+var Cantina = require("../libs/cantina.js");
 var hackerspace = require("../libs/hackerspace.js");
 var coffee = require("../libs/coffee.js");
 var meetings = require("../libs/meetings.js");
@@ -55,6 +55,7 @@ router.route('/hackerspace').get(function(req, res) {
 });
 
 router.route('/cantina/:location').get(function(req, res) {
+  var cantina = new Cantina();
   cantina.get(req.params.location, function(data) {
     httpErrorStatus(data, res);
     res.json(data);
