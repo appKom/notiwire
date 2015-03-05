@@ -1,39 +1,39 @@
 "use strict";
+var Affiliation = require("./affiliation.js");
+var requests = require("./requests.js");
 
-module.exports = {
+var Servant = {
   debug: 0,
   debugString: '11:00-12:00 Steinar Hagen\n12:00-13:00 Espen Skarsbø Kristoffersen Olsen\n13:00-14:00 Aina Elisabeth Thunestveit',
   
   msgNone: 'Ingen ansvarlige nå',
   msgError: 'Frakoblet fra ansvarkalender',
 
-  get: function(affiliationKey, callback) {
+  get: function(affiliation, callback) {
     if (callback == undefined) {
       console.log('ERROR: Callback is required. In the callback you should insert the results into the DOM.');
       return;
     }
-    Affiliation = require("./affiliation.js");
-    if (!Affiliation.org[affiliationKey].hw) {
-      if (this.debug) console.log('ERROR: affiliation without hw-features tried checking for servants');
+    var responseData = {};
+    if (!Affiliation.hasHardware(affiliation)){
+      responseData.error = "Manglende støtte";
+      callback(responseData);
       return;
     }
-
-    var api = Affiliation.org[affiliationKey].hw.apis.servant;
+    var api = Affiliation.org[affiliation].hw.apis.servant;
 
     // Receives the meeting plan for today
     var self = this;
-    Ajaxer = require("./ajaxer.js");
-    Ajaxer.getPlainText({
-      url: api,
+
+    requests.get(api, {
       success: function(servant) {
 
         // If servant debugging is enabled
         if (self.debug) {
           servant = self.debugString;
         }
-
-        servantList = servant.split("\n");
-        currentServant = servantList[0];
+        var servantList = servant.split("\n");
+        var currentServant = servantList[0];
 
         // If it's an actual servant with a time slot like this:
         // 12:00-13:00: Michael Johansen
@@ -111,3 +111,5 @@ module.exports = {
     return name;
   }
 };
+
+module.exports = Servant;
