@@ -2,11 +2,12 @@ var async = require('async');
 var express = require('express');
 var router = express.Router();
 
-var office = require("../libs/office.js");
 var Cantina = require("../libs/cantina.js");
-var Hackerspace = require("../libs/hackerspace.js");
 var Coffee = require("../libs/coffee.js");
+var Hackerspace = require("../libs/hackerspace.js");
+var Light = require("../libs/light.js");
 var meetings = require("../libs/meetings.js");
+var Event = require("../libs/event.js");
 
 var httpErrorStatus = function(data, res) {
   if(data.error) {
@@ -28,12 +29,14 @@ router.route('/office/:affiliation').get(function(req, res) {
       });
     },
     function(callback) {
-      office.getEventData(req.params.affiliation, function(data) {
+      var event = new Event();
+      event.get(req.params.affiliation, function(data) {
         callback(null, {name: 'event', value: data});
       });
     },
     function(callback) {
-      office.getLightData(req.params.affiliation, function(data) {
+      var light = new Light();
+      light.get(req.params.affiliation, function(data) {
         callback(null, {name: 'status', value: data});
       });
     }
