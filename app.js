@@ -6,9 +6,13 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var nunjucks = require('nunjucks');
 
-var routes = require('./routes/index');
+var api = require('./routes/api');
+var docs = require('./routes/docs');
+var notipi = require('./routes/notipi');
+var db = require('monk')('localhost/notiwire');
 
 var app = express();
+
 
 // view engine setup
 nunjucks.configure('views', {
@@ -21,11 +25,21 @@ nunjucks.configure('views', {
 //app.use(favicon(__dirname + '/public/favicon.ico'));
 app.use(logger('dev'));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true}));
 app.use(cookieParser());
 // app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', routes);
+
+// Access to db in routes
+app.use(function (req, res, next) {
+   req.db = db;
+   next();
+});
+
+
+app.use('/', docs);
+app.use('/api', api);
+app.use('/notipi', notipi);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

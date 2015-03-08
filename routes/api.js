@@ -16,11 +16,6 @@ var httpErrorStatus = function(data, res) {
   }
 };
 
-/* GET home page. */
-router.get('/', function(req, res) {
-  res.render('index.html');
-});
-
 router.route('/office/:affiliation').get(function(req, res) {
   async.parallel([
     function(callback) {
