@@ -2,13 +2,13 @@ var async = require('async');
 var express = require('express');
 var router = express.Router();
 
-var Cantina = require("../libs/cantina.js");
-var Coffee = require("../libs/coffee.js");
-var Hackerspace = require("../libs/hackerspace.js");
-var Light = require("../libs/light.js");
-var meetings = require("../libs/meetings.js");
-var Event = require("../libs/event.js");
-var Servant = require("../libs/servant.js");
+var Cantina = require("../libs/cantina");
+var Coffee = require("../libs/coffee");
+var Hackerspace = require("../libs/hackerspace");
+var Light = require("../libs/light");
+var meetings = require("../libs/meetings");
+var Event = require("../libs/event");
+var Servant = require("../libs/servant");
 
 var httpErrorStatus = function(data, res) {
   if(data.error) {

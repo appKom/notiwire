@@ -1,6 +1,6 @@
 "use strict";
-var Affiliation = require('./affiliation.js');
-var requests = require('./requests.js');
+var Affiliation = require('./affiliation');
+var requests = require('./requests');
 
 var Coffee = function() {
   this.debug = 0;
