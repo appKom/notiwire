@@ -6,7 +6,7 @@ var Cantina = require("../libs/cantina");
 var Coffee = require("../libs/coffee");
 var Hackerspace = require("../libs/hackerspace");
 var Light = require("../libs/light");
-var meetings = require("../libs/meeting");
+var Meeting = require("../libs/meeting");
 var Event = require("../libs/event");
 var Servant = require("../libs/servant");
 
@@ -23,6 +23,12 @@ router.get('/', function(req, res) {
 
 router.route('/office/:affiliation').get(function(req, res) {
   async.parallel([
+    function(callback) {
+      var meeting = new Meeting();
+      meeting.get(req.params.affiliation, function(data) {
+        callback(null, {name: 'meeting', value: data});
+      });
+    },
     function(callback) {
       var servant = new Servant();
       servant.get(req.params.affiliation, function(data) {

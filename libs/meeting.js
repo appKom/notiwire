@@ -1,4 +1,6 @@
 "use strict";
+var Affiliation = require("./affiliation.js");
+var requests = require('./requests');
 
 var Meeting = function() {
   this.debug = 0;
@@ -9,32 +11,30 @@ var Meeting = function() {
 
   this.msgNone = 'Ledig resten av dagen';
   this.msgError = 'Frakoblet fra møtekalender';
+  this.msgDisconnected = 'Klarte ikke hente status';
+  this.msgMissingSupport = 'Manglende støtte';
+  this.msgUnknown = 'Ukjent forening';
 
   this.responseData = {};
 };
 
 Meeting.prototype.get = function(affiliation, callback) {
-  if (callback == undefined) {
-    console.log('ERROR: Callback is required. In the callback you should insert the results into the DOM.');
-    return;
-  }
-  var Affiliation = require("./affiliation.js");
   if (Affiliation.org[affiliation] === undefined){
-    callback("ERROR: " + affiliation + " is not defined.");
+    this.responseData.error = this.msgUnknown;
+    callback(this.responseData);
     return;
   }
-  if (Affiliation.org[affiliation].hw === undefined){
-    callback("ERROR: " + affiliation + " has no hardware.");
+  if(!Affiliation.hasHardware(affiliation)) {
+    this.responseData.error = this.msgMissingSupport;
+    callback(this.responseData);
     return;
   }
   
   var api = Affiliation.org[affiliation].hw.apis.meetings;
   
   // Receives the meeting plan for today
-  var Ajaxer = require("./ajaxer.js");
   var self = this;
-  Ajaxer.getPlainText({
-    url: (self.debugApi ? self.debugThisApi : api),
+  requests.get(api, {
     success: function(meetings) {
       if (self.debug) console.log('Raw meetings:\n\n', meetings);
       
@@ -46,17 +46,22 @@ Meeting.prototype.get = function(affiliation, callback) {
         // Prettify todays meetings
         var prettyMeetings = self.prettifyTodaysMeetings(meetings);
         if (self.debug) console.log('Pretty meetings:', prettyMeetings);
-
-        callback(prettyMeetings);
+        self.responseData.message = meetings;
+        self.responseData.pretty = prettyMeetings;
+        self.responseData.free = false;
       }
       else {
         // Empty string returned from API
-        callback(self.msgNone);
+        self.responseData.message = self.msgNone;
+        self.responseData.pretty = self.responseData.message;
+        self.responseData.free = true;
       }
+      callback(self.responseData);
     },
     error: function(jqXHR, text, err) {
       if (self.debug) console.log('ERROR: Failed to get todays meeting plan.');
-      callback(self.msgError);
+      self.responseData.error = self.msgError;
+      callback(self.responseData);
     }
   });
 };
@@ -84,3 +89,5 @@ Meeting.prototype.prettifyTodaysMeetings = function(meetings) {
   if (this.debug) console.log(':30\t::', meetings);
   return meetings;
 };
+
+module.exports = Meeting;
