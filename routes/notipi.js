@@ -15,11 +15,11 @@ router.use(function (req, res, next) {
 router.param('affiliation', function(req, res, next, id) {
   req.Affiliation = req.db.get('affiliation');
   req.Affiliation.findOne({affiliation: id, api_key: req.api_key}, function(err, affiliation) {
-    console.log(affiliation);
     if(err) {
       next(err);
     }
     else if(affiliation) {
+      // Affiliation and api key was correct
       req.affiliation = affiliation;
       next();
     }
@@ -37,17 +37,15 @@ router.param('affiliation', function(req, res, next, id) {
   });
 });
 
-router.get('/', function(req, res) {
-  res.render('index.html');
-});
-
+// Coffee endpoint
 router.post('/:affiliation/coffee', function(req, res) {
+  // Add new coffee
   req.Affiliation.update(
     {affiliation: req.affiliation.affiliation},
     {
       $push: {
         coffee: {
-          brewed: new Date()
+          brewed: new Date() // now
         }
       }
     }
@@ -55,11 +53,13 @@ router.post('/:affiliation/coffee', function(req, res) {
   res.json({success: true});
 });
 
+// Light endpoint
 router.post('/:affiliation/light', function(req, res) {
   var light = req.body.light;
   if(light === undefined || !light.match(/^(on|off)$/)) {
     res.json({error: 'Mangler lysstatus'});
   }
+  // Adding light status
   req.Affiliation.update(
     {affiliation: req.affiliation.affiliation},
     {
