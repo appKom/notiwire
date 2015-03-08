@@ -13,8 +13,8 @@ var Coffee = function() {
 };
 Coffee.prototype.get = function(assosiation, callback) {
   if(!Affiliation.hasHardware(assosiation)) {
-    responseData.error = this.msgMissingSupport;
-    callback(responseData);
+    this.responseData.error = this.msgMissingSupport;
+    callback(this.responseData);
     return;
   }
   var api = Affiliation.org[assosiation].hw.apis.coffee;

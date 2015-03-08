@@ -1,5 +1,5 @@
 "use strict";
-var Affiliation = require("./affiliation.js");
+var Affiliation = require('./affiliation');
 var requests = require('./requests');
 
 var Meeting = function() {

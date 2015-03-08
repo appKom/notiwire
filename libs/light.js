@@ -16,7 +16,7 @@ var Light = function() {
 Light.prototype.get = function(assosiation, callback) {
   if(!Affiliation.hasHardware(assosiation)) {
       // Missing support for light status
-      this.responseData.error = msgSupport;
+      this.responseData.error = this.msgSupport;
       callback(this.responseData);
       return;
   }
