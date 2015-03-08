@@ -6,7 +6,7 @@ var Cantina = require("../libs/cantina");
 var Coffee = require("../libs/coffee");
 var Hackerspace = require("../libs/hackerspace");
 var Light = require("../libs/light");
-var meetings = require("../libs/meetings");
+var meetings = require("../libs/meeting");
 var Event = require("../libs/event");
 var Servant = require("../libs/servant");
 
