@@ -60,11 +60,15 @@ Servant.prototype.get = function(affiliation, callback) {
 
         if (start <= now && now <= end) {
           servantName = self.shortenServantName(servantName);
-          callback(servantName);
+          self.responseData.responsible = true;
+          self.responseData.message = servantName;
+          callback(self.responseData);
         }
         else {
           // No servant in this timeslot
-          callback(self.msgNone);
+          self.responseData.responsible = true;
+          self.responseData.message = self.msgNone;
+          callback(self.responseData);
         }
       }
       // If it's an actual servant with a date slot instead:
@@ -77,16 +81,22 @@ Servant.prototype.get = function(affiliation, callback) {
 
         // Assume we are within the correct dates
         servantName = self.shortenServantName(servantName);
-        callback(servantName);
+
+        self.responseData.responsible = true;
+        self.responseData.message = servantName;
+        callback(self.responseData);
       }
       else {
         // No more servants today
-        callback(self.msgNone);
+        self.responseData.responsible = false;
+        self.responseData.message = self.msgNone;
+        callback(self.responseData);
       }
     },
     error: function(jqXHR, text, err) {
       if (self.debug) console.log('ERROR: Failed to get current servant.');
-      callback(self.msgError);
+      responseData.error = self.msgError;
+      callback(self.responseData);
     }
   });
 };
