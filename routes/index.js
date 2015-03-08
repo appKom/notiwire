@@ -8,6 +8,7 @@ var Hackerspace = require("../libs/hackerspace.js");
 var Light = require("../libs/light.js");
 var meetings = require("../libs/meetings.js");
 var Event = require("../libs/event.js");
+var servant = require("../libs/servant.js");
 
 var httpErrorStatus = function(data, res) {
   if(data.error) {
@@ -22,6 +23,11 @@ router.get('/', function(req, res) {
 
 router.route('/office/:affiliation').get(function(req, res) {
   async.parallel([
+    function(callback) {
+      servant.get(req.params.affiliation, function(data) {
+        callback(null, {name: "servant", value: data});
+      });
+    },
     function(callback) {
       var coffee = new Coffee();
       coffee.get(req.params.affiliation, function(data){
