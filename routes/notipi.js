@@ -4,7 +4,7 @@ var router = express.Router();
 router.use(function (req, res, next) {
   req.api_key = req.body.api_key;
   if(req.api_key === undefined) {
-    res.json({error: 'Mangler apinøkkel'});
+    res.json(new Error('Mangler apinøkkel'));
   }
   else {
     next();
