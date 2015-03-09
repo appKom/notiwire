@@ -10,12 +10,6 @@ var Meeting = require("../libs/meeting");
 var Event = require("../libs/event");
 var Servant = require("../libs/servant");
 
-var httpErrorStatus = function(data, res) {
-  if(data.error) {
-    res.status(400);
-  }
-};
-
 router.route('/office/:affiliation').get(function(req, res) {
   async.parallel([
     function(callback) {
@@ -62,7 +56,6 @@ router.route('/office/:affiliation').get(function(req, res) {
 router.route('/hackerspace').get(function(req, res) {
   var hackerspace = new Hackerspace();
   hackerspace.get(function(data) {
-    httpErrorStatus(data, res);
     res.json(data);
   });
 });
@@ -70,7 +63,6 @@ router.route('/hackerspace').get(function(req, res) {
 router.route('/cantina/:location').get(function(req, res) {
   var cantina = new Cantina();
   cantina.get(req.params.location, function(data) {
-    httpErrorStatus(data, res);
     res.json(data);
   });
 });
