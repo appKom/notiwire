@@ -59,7 +59,6 @@ Servant.prototype.get = function(affiliation, callback) {
         end.setMinutes(endTime[1]);
 
         if (start <= now && now <= end) {
-          servantName = self.shortenServantName(servantName);
           self.responseData.responsible = true;
           self.responseData.message = servantName;
           callback(self.responseData);
@@ -80,7 +79,6 @@ Servant.prototype.get = function(affiliation, callback) {
         servantName = pieces[2];
 
         // Assume we are within the correct dates
-        servantName = self.shortenServantName(servantName);
 
         self.responseData.responsible = true;
         self.responseData.message = servantName;
@@ -99,28 +97,6 @@ Servant.prototype.get = function(affiliation, callback) {
       callback(self.responseData);
     }
   });
-};
-
-Servant.prototype.shortenServantName = function(name) {
-  // If there are multiple names, don't shorten
-  if (name.match(/ ?(,|&|og|and) /gi) !== null) {
-    return name;
-  }
-  // If the name is quite long...
-  if (name.length >= 25) {
-    if (name.split(" ").length >= 3) {
-      var names = name.split(" ");
-      // ...we'll shorten all middle names to one letter
-      for (var i = names.length - 2; i >= 1; i--) {
-        names[i] = names[i].charAt(0).toUpperCase()+'.';
-      }
-      name = '';
-      for (i in names) {
-        name += names[i] + " ";
-      }
-    }
-  }
-  return name;
 };
 
 module.exports = Servant;
