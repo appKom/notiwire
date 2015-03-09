@@ -5,11 +5,15 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var nunjucks = require('nunjucks');
+var log4js = require("log4js");
 
 var api = require('./routes/api');
 var docs = require('./routes/docs');
 var notipi = require('./routes/notipi');
 var db = require('monk')('localhost/notiwire');
+
+// Logging
+log4js.configure(__dirname + "/logging.json");
 
 var app = express();
 
@@ -54,6 +58,7 @@ app.use(function(req, res, next) {
 // will print stacktrace
 if (app.get('env') === 'development') {
     app.use(function(err, req, res, next) {
+        logger.info(err);
         res.status(err.status || 500);
         res.json({
             message: err.message,
@@ -66,6 +71,7 @@ if (app.get('env') === 'development') {
 // production error handler
 // no stacktraces leaked to user
 app.use(function(err, req, res, next) {
+    logger.error(err);
     res.status(err.status || 500);
     res.json({'error': {
         'message': err.message,
