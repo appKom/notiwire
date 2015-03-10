@@ -1,4 +1,5 @@
 "use strict";
+var async = require('async');
 var xml2js = require('xml2js');
 var hours = require('./hours');
 var requests = require('./requests');
@@ -110,7 +111,7 @@ var Cantina = function() {
 };
 
 Cantina.prototype.get = function (cantina, callback) {
-  if (this.feeds[cantina] === undefined) {
+  if (this.names[cantina] === undefined) {
     if (this.debug) console.error(this.msgUnsupportedCantina);
     this.responseData.error = this.msgUnsupportedCantina;
     callback(this.responseData);
@@ -122,24 +123,35 @@ Cantina.prototype.get = function (cantina, callback) {
   this.responseData.name = this.names[cantina];
 
   var self = this;
-  requests.xml(rssUrl, {
-    success: function(xml) {
-      // Getting opening hours
-      hours.get(cantina, function(data) {
-        self.responseData.hours = data;
-        // Parse menu xml
-        self.parseXml(xml, callback);
+  async.parallel([
+    // Cantina menu
+    function(callback) {
+      requests.xml(rssUrl, {
+        success: function(xml) {
+          // Parse menu xml
+          self.parseXml(xml, function() {
+              callback();
+          });
+        },
+        error: function(err, data) {
+          console.error(self.msgConnectionError);
+          self.responseData.error = self.msgConnectionError;
+          callback();
+        }
       });
     },
-    error: function(err, data) {
-      console.error(self.msgConnectionError);
-      self.responseData.error = self.msgConnectionError;
-      callback(self.responseData);
+    // Cantina opening hours
+    function(callback) {
+      hours.get(cantina, function(data) {
+        self.responseData.hours = data;
+        callback();
+      });
     }
+  ], function(err, results) {
+    callback(self.responseData);
   });
 };
 
-// Private
 
 Cantina.prototype.parseXml = function(xml, callback) {
   var self = this;
