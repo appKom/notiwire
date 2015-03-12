@@ -10,6 +10,7 @@ var Meeting = function() {
   this.msgDisconnected = 'Klarte ikke hente status';
   this.msgMissingSupport = 'Manglende støtte';
   this.msgUnknown = 'Ukjent forening';
+  this.msgOccupied = 'Kontoret er opptatt';
 
   this.responseData = {};
 };
@@ -36,7 +37,20 @@ Meeting.prototype.get = function(affiliation, callback) {
       meetings.forEach(function(meeting) {
         meeting.message = self.prettifyTodaysMeetings(meeting.pretty + ' ' + meeting.summary);
       });
-      callback(meetings);
+      self.responseData.message = self.msgNone;
+      self.responseData.free = true;
+
+      // Meeting is going on right now
+      if(meetings.length > 0) {
+        var current = meetings[0];
+        var now = new Date();
+        if (current.start.date <= now && now <= current.end.date) {
+          self.responseData.message = self.msgOccupied;
+          self.responseData.free = false;
+        }
+        self.responseData.meetings = meetings;
+      }
+      callback(self.responseData);
     },
     error: function(err, body) {
       self.responseData.error = self.msgError;

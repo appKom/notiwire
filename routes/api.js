@@ -7,7 +7,6 @@ var Coffee = require("../libs/coffee");
 var Hackerspace = require("../libs/hackerspace");
 var Light = require("../libs/light");
 var Meeting = require("../libs/meeting");
-var Event = require("../libs/event");
 var Servant = require("../libs/servant");
 
 router.route('/office/:affiliation').get(function(req, res) {
@@ -26,14 +25,8 @@ router.route('/office/:affiliation').get(function(req, res) {
     },
     function(callback) {
       var coffee = new Coffee();
-      coffee.get(req.params.affiliation, function(data){
+      coffee.get(req.params.affiliation, function(data) {
         callback(null, {name: 'coffee', value: data});
-      });
-    },
-    function(callback) {
-      var event = new Event();
-      event.get(req.params.affiliation, function(data) {
-        callback(null, {name: 'event', value: data});
       });
     },
     function(callback) {
