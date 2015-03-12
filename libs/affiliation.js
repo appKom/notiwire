@@ -453,9 +453,8 @@ var Affiliation = {
         apis: {
           coffee: 'http://draug.online.ntnu.no/coffee.txt',
           light: 'http://draug.online.ntnu.no/lys.txt',
-          event: 'http://passoa.online.ntnu.no/notifier/online/office',
-          servant: 'http://passoa.online.ntnu.no/notifier/online/servant',
-          meetings: 'http://passoa.online.ntnu.no/notifier/online/meetings',
+          servant: 'b72fgdhuv6g5mpoqa0bdvj095k%40group.calendar.google.com',
+          meetings: '54v6g4v6r46qi4asf7lh5j9pcs%40group.calendar.google.com',
         },
         statusIcons: {
           open: './org/online/icon-open.png',
