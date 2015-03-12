@@ -30,16 +30,12 @@ Meeting.prototype.get = function(affiliation, callback) {
   var api = Affiliation.org[affiliation].hw.apis.meetings;
 
   var calendar = new Calendar(api, config.calendarKey);
-  var now = new Date();
-  var midnight = new Date();
-  midnight.setHours(23);
-  midnight.setMinutes(59);
-  calendar.timebounds(now, midnight);
+  calendar.todayOnly();
   var meetings = calendar.get({
     success: function(meetings) {
       meetings.items.forEach(function(meeting) {
         meeting.prettier = self.prettifyTodaysMeetings(meeting.pretty + ' ' + meeting.summary);
-      })
+      });
       callback(meetings.items);
     },
     error: function(err, body) {

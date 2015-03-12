@@ -62,6 +62,14 @@ Calendar.prototype.timebounds = function(start, end) {
     this.params['timeMax'] = end.toISOString();
 };
 
+Calendar.prototype.todayOnly = function() {
+    this.params['timeMin'] = new Date().toISOString();
+    var midnight = new Date();
+    midnight.setHours(23);
+    midnight.setMinutes(59);
+    this.params['timeMax'] = midnight.toISOString();
+}
+
 Calendar.prototype.get = function(callback) {
     var that = this;
     requests.json(this.generateUrl(), {
