@@ -33,10 +33,10 @@ Meeting.prototype.get = function(affiliation, callback) {
   calendar.todayOnly();
   calendar.get({
     success: function(meetings) {
-      meetings.items.forEach(function(meeting) {
+      meetings.forEach(function(meeting) {
         meeting.prettier = self.prettifyTodaysMeetings(meeting.pretty + ' ' + meeting.summary);
       });
-      callback(meetings.items);
+      callback(meetings);
     },
     error: function(err, body) {
       self.responseData.error = self.msgError;

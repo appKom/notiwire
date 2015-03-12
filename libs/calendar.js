@@ -79,7 +79,7 @@ Calendar.prototype.get = function(callback) {
             meetings.items.forEach(function(meeting) {
                 that.prettify(meeting);
             });
-            callback.success(meetings);
+            callback.success(meetings.items);
         },
         error: callback.error
     });
