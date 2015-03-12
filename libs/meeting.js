@@ -34,7 +34,7 @@ Meeting.prototype.get = function(affiliation, callback) {
   calendar.get({
     success: function(meetings) {
       meetings.forEach(function(meeting) {
-        meeting.prettier = self.prettifyTodaysMeetings(meeting.pretty + ' ' + meeting.summary);
+        meeting.message = self.prettifyTodaysMeetings(meeting.pretty + ' ' + meeting.summary);
       });
       callback(meetings);
     },

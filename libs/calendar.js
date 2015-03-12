@@ -43,9 +43,9 @@ Calendar.prototype.prettyDate = function(meetingDate) {
     var date = new Date(dateString);
     var tonight = new Date();
     tonight.setDate(tonight.getDate() + 1);
-    tonight.setHours(1, 0, 0, 0);
+    tonight.setHours(0, 0, 0, 0);
     // Before 01:00 will show HH:MM
-    if(date < tonight) {
+    if(date <= tonight) {
         return this.pad(date.getHours()) + ':' + this.pad(date.getMinutes());
     }
     // else day
@@ -53,7 +53,29 @@ Calendar.prototype.prettyDate = function(meetingDate) {
 };
 
 Calendar.prototype.prettify = function(meeting) {
-    // 08:00-10:00 arrKom\n14:00-16:00 triKom\n18:00-23:59 appKom'
+    // Convert full day events to datetimes
+    if(meeting.start.date === undefined) {
+        meeting.start.date = meeting.start.dateTime;
+        meeting.start.dateTime = undefined;
+    }
+    else {
+        meeting.start.date = new Date(meeting.start.date);
+        meeting.start.date.setHours(0, 0, 0, 0);
+    }
+    if(meeting.end.date === undefined) {
+        meeting.end.date = meeting.end.dateTime;
+        meeting.end.dateTime = undefined;
+    }
+    else {
+        meeting.end.date = new Date(meeting.end.date);
+        // Last second of the day
+        meeting.end.date.setHours(23, 59, 59, 59);
+    }
+    // String to Date
+    meeting.start.date = new Date(meeting.start.date);
+    meeting.end.date = new Date(meeting.end.date);
+
+    // Add pretty strings
     meeting.start.pretty = this.prettyDate(meeting.start);
     meeting.end.pretty = this.prettyDate(meeting.end);
     meeting.pretty = meeting.start.pretty + '-' + meeting.end.pretty;
