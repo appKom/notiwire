@@ -15,7 +15,9 @@ var Calendar = function(id, key) {
     };
 
     // Misc
-    this.weekdays = ['Mandag', 'Tirsdag', 'Onsdag', 'Torsdag', 'Fredag', 'Lørdag', 'Søndag'];
+
+    // Fucking Americans and their silly week systems
+    this.weekdays = ['Søndag', 'Mandag', 'Tirsdag', 'Onsdag', 'Torsdag', 'Fredag', 'Lørdag'];
 };
 
 Calendar.prototype.generateUrl = function() {

@@ -31,7 +31,7 @@ Meeting.prototype.get = function(affiliation, callback) {
 
   var calendar = new Calendar(api, config.calendarKey);
   calendar.todayOnly();
-  var meetings = calendar.get({
+  calendar.get({
     success: function(meetings) {
       meetings.items.forEach(function(meeting) {
         meeting.prettier = self.prettifyTodaysMeetings(meeting.pretty + ' ' + meeting.summary);
