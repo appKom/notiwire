@@ -25,13 +25,13 @@ router.route('/office/:affiliation').get(function(req, res) {
     },
     function(callback) {
       var coffee = new Coffee();
-      coffee.get(req.params.affiliation, function(data) {
+      coffee.get(req, req.params.affiliation, function(data) {
         callback(null, {name: 'coffee', value: data});
       });
     },
     function(callback) {
       var light = new Light();
-      light.get(req.params.affiliation, function(data) {
+      light.get(req, req.params.affiliation, function(data) {
         callback(null, {name: 'status', value: data});
       });
     }

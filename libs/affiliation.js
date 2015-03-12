@@ -67,8 +67,8 @@ var Affiliation = {
       hw: {
         office: 'DEBUG-kontoret',
         apis: {
-          coffee: 'http://passoa.online.ntnu.no/notifier/DEBUG/coffee',
-          light: 'http://passoa.online.ntnu.no/notifier/DEBUG/light',
+          coffee: true,
+          light: true,
           servant: 'informatikk.org_r25vb0o7ounepq40tc4pcieh84%40group.calendar.google.com',
           meetings: 'informatikk.org_r25vb0o7ounepq40tc4pcieh84%40group.calendar.google.com'
         },
@@ -265,8 +265,8 @@ var Affiliation = {
       hw: {
         office: 'HC-kontoret',
         apis: {
-          coffee: 'http://passoa.online.ntnu.no/notifier/hc/coffee',
-          light: 'http://passoa.online.ntnu.no/notifier/hc/light',
+          coffee: true,
+          light: true,
           servant: 'f2rrhkovg0i2ar1cumaf9aukbs%40group.calendar.google.com',
           meetings: null,
         },
@@ -447,8 +447,6 @@ var Affiliation = {
       hw: {
         office: 'Onlinekontoret',
         apis: {
-          coffee: 'http://draug.online.ntnu.no/coffee.txt',
-          light: 'http://draug.online.ntnu.no/lys.txt',
           servant: 'b72fgdhuv6g5mpoqa0bdvj095k%40group.calendar.google.com',
           meetings: '54v6g4v6r46qi4asf7lh5j9pcs%40group.calendar.google.com',
         },
@@ -521,8 +519,8 @@ var Affiliation = {
       hw: {
         office: 'Nablakontoret',
         apis: {
-          coffee: 'http://passoa.online.ntnu.no/notifier/nabla/coffee',
-          light: 'http://passoa.online.ntnu.no/notifier/nabla/light',
+          coffee: true,
+          light: true,
           meetings: 'eqo138ttshe9r68922ge1708f0%40group.calendar.google.com',
           servant: 'kt7jjv7rtiic9lsg6uq22tmolo%40group.calendar.google.com',
         },
@@ -571,8 +569,8 @@ var Affiliation = {
       hw: {
         office: "Solanstua",
         apis: {
-          coffee: 'http://passoa.online.ntnu.no/notifier/solan/coffee',
-          light: 'http://passoa.online.ntnu.no/notifier/solan/light',
+          coffee: true,
+          light: true,
           meetings: 'u2ijr3talfkhguigd92o560pq0%40group.calendar.google.com',
           servant: 'qnkokters6lsm9lic2jm0fdfnk%40group.calendar.google.com',
         },
@@ -1412,6 +1410,30 @@ var Affiliation = {
   },
   hasHardware: function(affiliation) {
     return Affiliation.org[affiliation] !== undefined && Affiliation.org[affiliation].hw !== undefined;
+  },
+  hasLegacyLight: function(affiliation) {
+    // TODO: Make this check less shit
+    if(this.hasHardware(affiliation)) {
+      // True means notipi
+      if(Affiliation.org[affiliation].hw.apis.light === true) {
+        return false;
+      }
+      // Set to something else than true
+      return Affiliation.org[affiliation].hw.apis.light !== undefined;
+    }
+    return false;
+  },
+  hasLegacyCoffee: function(affiliation) {
+    // TODO: Make this check less shit
+    if(this.hasHardware(affiliation)) {
+      // True means notipi
+      if(Affiliation.org[affiliation].hw.apis.coffee === true) {
+        return false;
+      }
+      // Set to something else than true
+      return Affiliation.org[affiliation].hw.apis.coffee !== undefined;
+    }
+    return false;
   }
 };
 

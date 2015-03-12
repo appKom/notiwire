@@ -11,13 +11,46 @@ var Coffee = function() {
 
   this.responseData = {};
 };
-Coffee.prototype.get = function(assosiation, callback) {
-  if(!Affiliation.hasHardware(assosiation)) {
+
+Coffee.prototype.get = function(req, affiliation, callback) {
+  var that = this;
+  if(!Affiliation.hasHardware(affiliation)) {
     this.responseData.error = this.msgMissingSupport;
     callback(this.responseData);
     return;
   }
-  var api = Affiliation.org[assosiation].hw.apis.coffee;
+  if(Affiliation.hasLegacyCoffee(affiliation)) {
+    // Legacy coffee status
+    this.getLegacy(affiliation, callback);
+    return;
+  }
+  var today = new Date();
+  today.setHours(0, 0, 0, 0);
+  var coffeeDb = req.db.get('coffee');
+  coffeeDb.find({
+    $query: {
+      affiliation: affiliation,
+      brewed: {$gte: today} // Only match pots today
+    },
+    $orderby: {
+      brewed: -1 // Latest first
+    },
+  }, function(err, coffee) {
+    var pots = coffee.length;
+    var date = null;
+    if(pots > 0) {
+       var lastPot = coffee[0];
+       date = lastPot.brewed;
+    }
+    that.responseData.date = date;
+    that.responseData.pots = pots;
+    callback(that.responseData);
+  });
+
+};
+
+Coffee.prototype.getLegacy = function(affiliation, callback) {
+  var api = Affiliation.org[affiliation].hw.apis.coffee;
 
   // Receives the status for the coffee pot
   var self = this;
@@ -35,10 +68,16 @@ Coffee.prototype.get = function(assosiation, callback) {
         var pots = Number(pieces[0]);
         var ageString = pieces[1];
 
-        var unix = Date.parse(ageString);
-        var date = new Date(unix);
+        var date = new Date(ageString);
 
-        self.responseData.unix = unix;
+        // We're only interested in pots today
+        var today = new Date();
+        today.setHours(0, 0, 0, 0);
+        if(today > date) {
+          date = null;
+          pots = 0;
+        }
+
         self.responseData.date = date;
         self.responseData.pots = pots;
 
