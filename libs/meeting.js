@@ -22,7 +22,7 @@ Meeting.prototype.get = function(affiliation, callback) {
     callback(this.responseData);
     return;
   }
-  if(!Affiliation.hasHardware(affiliation)) {
+  if(!Affiliation.hasHardware(affiliation) || !Affiliation.org[affiliation].hw.apis.meetings) {
     this.responseData.error = this.msgMissingSupport;
     callback(this.responseData);
     return;

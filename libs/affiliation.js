@@ -24,7 +24,6 @@ var Affiliation = {
   //   apis: {
   //     coffee: 'http://orgx.no/coffee',       // Coffee data
   //     light: 'http://orgx.no/lys',           // Light data
-  //     event: 'http://orgx.no/status',        // Current meeting status
   //     servant: 'http://orgx.no/servant',     // Todays servant list
   //     meetings: 'http://orgx.no/meetings',   // Todays meetings
   //   },
@@ -101,8 +100,7 @@ var Affiliation = {
         apis: {
           coffee: 'http://kaffe.abakus.no/coffee.txt',
           light: 'http://informatikk.org/abakus/lys.txt',
-          event: 'http://passoa.online.ntnu.no/notifier/abakus/office',
-          servant: 'http://informatikk.org/abakus/servant_list.txt', // TODO
+          servant: null, // TODO
           meetings: '3ms24h7vpud4clrtt2grtadgm0%40group.calendar.google.com',
         },
         statusIcons: {
@@ -224,9 +222,8 @@ var Affiliation = {
         apis: {
           coffee: 'http://pi.deltahouse.no/coffee.txt',
           light: 'http://pi.deltahouse.no/office.txt',
-          event: 'http://passoa.online.ntnu.no/notifier/delta/office',
-          servant: 'http://passoa.online.ntnu.no/notifier/delta/servant',
-          meetings: 'http://passoa.online.ntnu.no/notifier/delta/meetings',
+          servant: null,
+          meetings: '34af64urae12lgm98oupqo94gg%40group.calendar.google.com',
         },
         statusIcons: {
           open: './org/delta/icon-open.png',
@@ -270,9 +267,8 @@ var Affiliation = {
         apis: {
           coffee: 'http://passoa.online.ntnu.no/notifier/hc/coffee',
           light: 'http://passoa.online.ntnu.no/notifier/hc/light',
-          event: 'http://passoa.online.ntnu.no/notifier/hc/office',
-          servant: 'http://passoa.online.ntnu.no/notifier/hc/servant',
-          meetings: 'http://passoa.online.ntnu.no/notifier/hc/meetings',
+          servant: 'f2rrhkovg0i2ar1cumaf9aukbs%40group.calendar.google.com',
+          meetings: null,
         },
         statusIcons: {
           open: './org/hc/icon-open.png',
@@ -526,10 +522,9 @@ var Affiliation = {
         office: 'Nablakontoret',
         apis: {
           coffee: 'http://passoa.online.ntnu.no/notifier/nabla/coffee',
-          event: 'http://passoa.online.ntnu.no/notifier/nabla/office',
           light: 'http://passoa.online.ntnu.no/notifier/nabla/light',
-          meetings: 'http://passoa.online.ntnu.no/notifier/nabla/meetings',
-          servant: 'http://passoa.online.ntnu.no/notifier/nabla/servant',
+          meetings: 'eqo138ttshe9r68922ge1708f0%40group.calendar.google.com',
+          servant: 'kt7jjv7rtiic9lsg6uq22tmolo%40group.calendar.google.com',
         },
         statusIcons: {
           open: './org/nabla/icon-open.png',
@@ -577,10 +572,9 @@ var Affiliation = {
         office: "Solanstua",
         apis: {
           coffee: 'http://passoa.online.ntnu.no/notifier/solan/coffee',
-          event: 'http://passoa.online.ntnu.no/notifier/solan/office',
           light: 'http://passoa.online.ntnu.no/notifier/solan/light',
-          meetings: 'http://passoa.online.ntnu.no/notifier/solan/meetings',
-          servant: 'http://passoa.online.ntnu.no/notifier/solan/servant',
+          meetings: 'u2ijr3talfkhguigd92o560pq0%40group.calendar.google.com',
+          servant: 'qnkokters6lsm9lic2jm0fdfnk%40group.calendar.google.com',
         },
         statusIcons: {
           open: './org/solan/icon-open.png',

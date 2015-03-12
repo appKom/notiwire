@@ -21,7 +21,7 @@ Servant.prototype.get = function(affiliation, callback) {
     console.log('ERROR: Callback is required. In the callback you should insert the results into the DOM.');
     return;
   }
-  if (!Affiliation.hasHardware(affiliation)){
+  if (!Affiliation.hasHardware(affiliation) || !Affiliation.org[affiliation].hw.apis.servant){
     this.responseData.error = "Manglende støtte";
     callback(this.responseData);
     return;
