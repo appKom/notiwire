@@ -9,7 +9,7 @@ var Light = require("../libs/light");
 var Meeting = require("../libs/meeting");
 var Servant = require("../libs/servant");
 
-router.route('/office/:affiliation').get(function(req, res) {
+router.route('/affiliation/:affiliation').get(function(req, res) {
   async.parallel([
     function(callback) {
       var meeting = new Meeting();
