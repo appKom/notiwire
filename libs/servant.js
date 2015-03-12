@@ -93,7 +93,7 @@ Servant.prototype.get = function(affiliation, callback) {
     },
     error: function(jqXHR, text, err) {
       if (self.debug) console.log('ERROR: Failed to get current servant.');
-      responseData.error = self.msgError;
+      self.responseData.error = self.msgError;
       callback(self.responseData);
     }
   });
