@@ -1,14 +1,10 @@
 "use strict";
 var Affiliation = require('./affiliation');
 var requests = require('./requests');
+var Calendar = require('./calendar');
+var config = require('../config.json');
 
 var Meeting = function() {
-  this.debug = 0;
-  this.debugApi = 0;
-  this.debugThisApi = 'http://passoa.online.ntnu.no/notifier/DEBUG/meetings'; // TODO: create that address server side
-  this.debugString = 0;
-  this.debugThisString = '08:00-10:00 arrKom\n14:00-16:00 triKom\n18:00-23:59 appKom';
-
   this.msgNone = 'Ledig resten av dagen';
   this.msgError = 'Frakoblet fra møtekalender';
   this.msgDisconnected = 'Klarte ikke hente status';
@@ -19,6 +15,7 @@ var Meeting = function() {
 };
 
 Meeting.prototype.get = function(affiliation, callback) {
+  var self = this;
   if (Affiliation.org[affiliation] === undefined){
     this.responseData.error = this.msgUnknown;
     callback(this.responseData);
@@ -31,35 +28,21 @@ Meeting.prototype.get = function(affiliation, callback) {
   }
   
   var api = Affiliation.org[affiliation].hw.apis.meetings;
-  
-  // Receives the meeting plan for today
-  var self = this;
-  requests.get(api, {
-    success: function(meetings) {
-      if (self.debug) console.log('Raw meetings:\n\n', meetings);
-      
-      // Debugging a particular string right now?
-      if (self.debugString)
-        meetings = self.debugThisString;
 
-      if (meetings !== '') {
-        // Prettify todays meetings
-        var prettyMeetings = self.prettifyTodaysMeetings(meetings);
-        if (self.debug) console.log('Pretty meetings:', prettyMeetings);
-        self.responseData.message = meetings;
-        self.responseData.pretty = prettyMeetings;
-        self.responseData.free = false;
-      }
-      else {
-        // Empty string returned from API
-        self.responseData.message = self.msgNone;
-        self.responseData.pretty = self.responseData.message;
-        self.responseData.free = true;
-      }
-      callback(self.responseData);
+  var calendar = new Calendar(api, config.calendarKey);
+  var now = new Date();
+  var midnight = new Date();
+  midnight.setHours(23);
+  midnight.setMinutes(59);
+  calendar.timebounds(now, midnight);
+  var meetings = calendar.get({
+    success: function(meetings) {
+      meetings.items.forEach(function(meeting) {
+        meeting.prettier = self.prettifyTodaysMeetings(meeting.pretty + ' ' + meeting.summary);
+      })
+      callback(meetings.items);
     },
-    error: function(jqXHR, text, err) {
-      if (self.debug) console.log('ERROR: Failed to get todays meeting plan.');
+    error: function(err, body) {
       self.responseData.error = self.msgError;
       callback(self.responseData);
     }

@@ -12,8 +12,6 @@ var docs = require('./routes/docs');
 var notipi = require('./routes/notipi');
 var db = require('monk')('localhost/notiwire');
 
-var config = require('./config.json');
-
 // Logging
 log4js.configure(__dirname + "/logging.json");
 var logger = log4js.getLogger();
@@ -40,7 +38,6 @@ app.use(cookieParser());
 // Access to db and config in routes
 app.use(function (req, res, next) {
    req.db = db;
-   req.config = config;
    next();
 });
 

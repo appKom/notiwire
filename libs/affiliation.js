@@ -70,9 +70,8 @@ var Affiliation = {
         apis: {
           coffee: 'http://passoa.online.ntnu.no/notifier/DEBUG/coffee',
           light: 'http://passoa.online.ntnu.no/notifier/DEBUG/light',
-          event: 'http://passoa.online.ntnu.no/notifier/DEBUG/office',
-          servant: 'http://passoa.online.ntnu.no/notifier/DEBUG/servant',
-          meetings: 'http://passoa.online.ntnu.no/notifier/DEBUG/meetings',
+          servant: 'informatikk.org_r25vb0o7ounepq40tc4pcieh84%40group.calendar.google.com',
+          meetings: 'informatikk.org_r25vb0o7ounepq40tc4pcieh84%40group.calendar.google.com'
         },
         statusIcons: {
           open: './org/DEBUG/icon-open.png',
@@ -104,7 +103,7 @@ var Affiliation = {
           light: 'http://informatikk.org/abakus/lys.txt',
           event: 'http://passoa.online.ntnu.no/notifier/abakus/office',
           servant: 'http://informatikk.org/abakus/servant_list.txt', // TODO
-          meetings: 'http://passoa.online.ntnu.no/notifier/abakus/meetings',
+          meetings: '3ms24h7vpud4clrtt2grtadgm0%40group.calendar.google.com',
         },
         statusIcons: {
           // TODO: update when Abakus gets office status feature
