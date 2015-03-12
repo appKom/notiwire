@@ -31,10 +31,6 @@ Servant.prototype.get = function(affiliation, callback) {
   // Receives the meeting plan for today
   var calendar = new Calendar(api, config.calendarKey);
   calendar.todayOnly();
-  // DEBUG!!!
-  var nextweek = new Date();
-  nextweek.setDate(nextweek.getDate() + 7);
-  calendar.timebounds(new Date(), nextweek);
   calendar.get({
     success: function(servants) {
       if(servants.length > 0) {
