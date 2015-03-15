@@ -70,7 +70,7 @@ Light.prototype.getLegacy = function(affiliation, callback) {
       else {
         lights = data.match(/(on|true|på)/gi) !== null;
       }
-      self.responseData.open = lights;
+      self.responseData.status = lights;
       callback(self.responseData);
     },
     error: function(err, data) {
