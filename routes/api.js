@@ -60,4 +60,11 @@ router.route('/cantina/:location').get(function(req, res) {
   });
 });
 
+router.route('/cantina/').get(function(req, res) {
+  var cantina = new Cantina();
+  cantina.all(function(cantinas) {
+    res.json(cantinas);
+  });
+});
+
 module.exports = router;

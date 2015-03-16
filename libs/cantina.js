@@ -110,6 +110,17 @@ var Cantina = function() {
   this.responseData = {};
 };
 
+Cantina.prototype.all = function(callback) {
+  var cantinas = [];
+  for(var key in this.names) {
+    var cantina = {'id': key};
+    cantina.name = this.names[key];
+    cantina.feed = this.feeds[key] ? this.feeds[key] : null;
+    cantinas.push(cantina);
+  }
+  callback(cantinas);
+};
+
 Cantina.prototype.get = function (cantina, callback) {
   if (this.names[cantina] === undefined) {
     if (this.debug) console.error(this.msgUnsupportedCantina);
