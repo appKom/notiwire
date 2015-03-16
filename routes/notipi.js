@@ -1,3 +1,4 @@
+var Coffee = require('../libs/coffee');
 var express = require('express');
 var router = express.Router();
 
@@ -44,6 +45,10 @@ router.post('/:affiliation/coffee', function(req, res) {
   coffee.insert({
     affiliation: req.affiliation.affiliation,
     brewed: new Date() // now
+  });
+  var coffee = new Coffee();
+  coffee.get(req, req.params.affiliation, function(data) {
+    req.io.emit('coffee', data);
   });
   res.json({success: true});
 });
