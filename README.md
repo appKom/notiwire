@@ -1,4 +1,4 @@
-Online Notiwire 2.0
+Online Notiwire
 =========
 
 API for various services relevant for students in Trondheim.
