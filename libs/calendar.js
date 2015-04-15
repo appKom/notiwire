@@ -1,4 +1,5 @@
 "use strict";
+var moment = require('moment-timezone');
 var requests = require('./requests');
 
 // Google Calendar Wrapper
@@ -6,7 +7,7 @@ var Calendar = function(id, key) {
     this.baseUrl = 'https://www.googleapis.com/calendar/v3/calendars/';
     this.id = id;
     this.params = {
-        timezone: 'Europe%2FOslo',
+        timezone: 'Europe/Oslo',
         maxResults: 10,
         orderBy: 'startTime',
         fields: 'items(description%2Cend%2Cstart%2Csummary)%2Cupdated',
@@ -40,16 +41,14 @@ Calendar.prototype.prettyDate = function(meetingDate) {
     if(dateString === undefined) {
         dateString = meetingDate.date;
     }
-    var date = new Date(dateString);
-    var tonight = new Date();
-    tonight.setDate(tonight.getDate() + 1);
-    tonight.setHours(0, 0, 0, 0);
+    var date = moment(dateString).tz(this.params.timezone);
+    var tonight = moment().add(1, 'days').hour(0).minute(0).second(0);
     // Before 01:00 will show HH:MM
     if(date <= tonight) {
-        return this.pad(date.getHours()) + ':' + this.pad(date.getMinutes());
+        return date.format('HH:mm');
     }
     // else day
-    return this.weekdays[date.getDay()];
+    return this.weekdays[date.days()];
 };
 
 Calendar.prototype.prettify = function(meeting) {
