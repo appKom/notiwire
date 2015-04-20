@@ -53,17 +53,17 @@ router.post('/:affiliation/coffee', function(req, res) {
   res.json({success: true});
 });
 
-// Light endpoint
-router.post('/:affiliation/light', function(req, res) {
-  var light = req.body.light;
-  if(light === undefined || !light.match(/^(on|off)$/)) {
+// Status endpoint. Typically status if the office is open or not
+router.post('/:affiliation/status', function(req, res) {
+  var status = req.body.status;
+  if(status === undefined || !status.match(/^(true|false)$/i)) {
     res.json({error: 'Mangler lysstatus'});
   }
-  var lightDb = req.db.get('light');
-  // Adding light status
-  lightDb.insert({
+  var statusDb = req.db.get('status');
+  // Adding status
+  statusDb.insert({
     affiliation: req.affiliation.affiliation,
-    status: light == 'on',
+    status: status.toLowerCase() === 'true',
     updated: new Date()
   });
   res.json({success: true});

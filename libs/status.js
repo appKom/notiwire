@@ -28,26 +28,26 @@ Light.prototype.get = function(req, affiliation, callback) {
   }
   var lastDay = new Date();
   lastDay.setDate(lastDay.getDate() - 1);
-  var lightDb = req.db.get('light');
-  lightDb.findOne({
+  var statusDb = req.db.get('status');
+  statusDb.findOne({
     $query: {
       affiliation: affiliation,
-      updated: {$gte: lastDay} // Only get light updates from the last 24h
+      updated: {$gte: lastDay} // Only get status updates from the last 24h
     },
     $orderby: {
       updated: -1 // Latest first
     }
-  }, function(err, light) {
+  }, function(err, status) {
     if(err !== null) {
       // Something went wrong!
       that.responseData.error = that.msgError;
     }
-    else if(light !== null) {
-      that.responseData.status = light.status;
-      that.responseData.updated = light.updated;
+    else if(status !== null) {
+      that.responseData.status = status.status;
+      that.responseData.updated = status.updated;
     }
     else {
-      // No light updated today
+      // No status updated today
       that.responseData.status = null;
       that.responseData.updated = null;
     }

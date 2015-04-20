@@ -5,7 +5,7 @@ var router = express.Router();
 var Cantina = require("../libs/cantina");
 var Coffee = require("../libs/coffee");
 var Hackerspace = require("../libs/hackerspace");
-var Light = require("../libs/light");
+var Status = require("../libs/status");
 var Meeting = require("../libs/meeting");
 var Servant = require("../libs/servant");
 
@@ -30,8 +30,8 @@ router.route('/affiliation/:affiliation').get(function(req, res) {
       });
     },
     function(callback) {
-      var light = new Light();
-      light.get(req, req.params.affiliation, function(data) {
+      var status = new Status();
+      status.get(req, req.params.affiliation, function(data) {
         callback(null, {name: 'status', value: data});
       });
     }
