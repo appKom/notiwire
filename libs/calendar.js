@@ -42,7 +42,7 @@ Calendar.prototype.prettyDate = function(meetingDate) {
         dateString = meetingDate.date;
     }
     var date = moment(dateString).tz(this.params.timezone);
-    var tonight = moment().add(1, 'days').hour(0).minute(0).second(0);
+    var tonight = this.midnight();
     // Before 01:00 will show HH:MM
     if(date <= tonight) {
         return date.format('HH:mm');
@@ -87,11 +87,13 @@ Calendar.prototype.timebounds = function(start, end) {
 
 Calendar.prototype.todayOnly = function() {
     this.params['timeMin'] = new Date().toISOString();
-    var midnight = new Date();
-    midnight.setHours(23);
-    midnight.setMinutes(59);
-    this.params['timeMax'] = midnight.toISOString();
+    this.params['timeMax'] = this.midnight().toISOString();
 }
+
+Calendar.prototype.midnight = function() {
+    // Midnight Norwegian time
+    return moment().tz(this.params.timezone).add(1, 'days').hour(0).minute(0).second(0);
+};
 
 Calendar.prototype.get = function(callback) {
     var that = this;
