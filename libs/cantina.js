@@ -1,7 +1,7 @@
 "use strict";
 var async = require('async');
 var xml2js = require('xml2js');
-var hours = require('./hours');
+var Hours = require('./hours');
 var requests = require('./requests');
 
 var Cantina = function() {
@@ -153,6 +153,7 @@ Cantina.prototype.get = function (cantina, callback) {
     },
     // Cantina opening hours
     function(callback) {
+      var hours = new Hours();
       hours.get(cantina, function(data) {
         self.responseData.hours = data;
         callback();
