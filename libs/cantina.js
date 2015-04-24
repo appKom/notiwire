@@ -12,10 +12,10 @@ var Cantina = function() {
   this.msgConnectionError = 'Frakoblet fra sit.no/rss';
   this.msgUnsupportedCantina = 'Kantinen støttes ikke';
   this.msgMalformedMenu = 'Galt format på meny';
-  this.dinnerWordLimit = 4; // 4-7 is good, depends on screen size
-  this.debug = 0; // General debugging
-  this.debugDay = 0; // Whether or not to debug a particular day
-  this.debugThisDay = 'Fredag'; // The day in question
+  this.dinnerWordLimit = 7; // 4-7 is good, depends on screen size
+  this.debug = 1; // General debugging
+  this.debugDay = 1; // Whether or not to debug a particular day
+  this.debugThisDay = 'Onsdag'; // The day in question
   this.debugText = 0; // Whether or not to deep debug dinner strings (even in weekends)
   this.debugThisText = 'Vårruller. Servert med ris og salat: 1000,-'; // debugText must be true
   // Expected format of debugThisText: "Seirett med ris (G): 8 kroner" -> "food: price"
@@ -134,33 +134,23 @@ Cantina.prototype.get = function (cantina, callback) {
   this.responseData.name = this.names[cantina];
 
   var self = this;
-  async.parallel([
-    // Cantina menu
-    function(callback) {
-      requests.xml(rssUrl, {
-        success: function(xml) {
-          // Parse menu xml
-          self.parseXml(xml, function() {
-              callback();
-          });
-        },
-        error: function(err, data) {
-          console.error(self.msgConnectionError);
-          self.responseData.error = self.msgConnectionError;
-          callback();
-        }
-      });
-    },
-    // Cantina opening hours
-    function(callback) {
-      var hours = new Hours();
-      hours.get(cantina, function(data) {
-        self.responseData.hours = data;
-        callback();
-      });
-    }
-  ], function(err, results) {
-    callback(self.responseData);
+  var hours = new Hours();
+  hours.get(cantina, function(hours) {
+    self.responseData.hours = hours;
+    self.open = hours.open;
+    requests.xml(rssUrl, {
+      success: function(xml) {
+        // Parse menu xml
+        self.parseXml(xml, function() {
+            callback(self.responseData);
+        });
+      },
+      error: function(err, data) {
+        console.error(self.msgConnectionError);
+        self.responseData.error = self.msgConnectionError;
+        callback(self.responseData);
+      }
+    });
   });
 };
 
@@ -289,10 +279,10 @@ Cantina.prototype.parseTodaysMenu = function(todaysMenu, mondaysCantinaMenu, cal
       }
     });
 
-    // If no dinner info is found at all, check for unique message at monday
+    // If no dinner info is found at all, check for unique message at monday if open
     if (dinnerObjects.length === 0) {
       if (self.debug) console.log('WARNING: no dinner menu found today, checking monday');
-      if (mondaysCantinaMenu !== null) {
+      if (self.open && mondaysCantinaMenu !== null) {
         // WARNING: recursion is divine!
         self.parseTodaysMenu(mondaysCantinaMenu, null, callback);
       }

@@ -208,7 +208,7 @@ Hours.prototype.prettifyTodaysHours = function(todays) {
   // Remove unnecessarily specific time info 10:00 -> 10
   // todays = todays.replace(/:00/g, '');
   // Trim unnecessary zero in time 08 -> 8
-  todays = todays.replace(/0([1-9])/g, '$1');
+  // todays = todays.replace(/0([1-9])/g, '$1');
   // Remove colon after day names
   todays = todays.replace(/: /g, ' ');
   // Change any dash or the likes between days to 'til'
