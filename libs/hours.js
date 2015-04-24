@@ -1,5 +1,6 @@
 "use strict";
 var requests = require('./requests');
+var moment = require('moment-timezone');
 
 var Hours = function() {
   
@@ -15,7 +16,7 @@ var Hours = function() {
   
   this.debug = 0; // General debugging
   this.debugDay = 0; // Whether or not to debug a particular day
-  this.debugThisDay = '0'; // Number corresponding to day of week, 0 is sunday
+  this.debugThisDay = 5; // Number corresponding to day of week, 0 is sunday
   this.debugText = 0; // Deep debugging of a specific string, insert below
   this.debugThisText = 'Mandag- Torsdag 10.00 -17.30\nFredag 08.00 - 14.00\nRealfagbygget på Gløshaugen 73 55 12 52 sit.kafe.realfag@sit.no'; // debugText must be true
   // debugThisText is expected to be pre-stripped of JSON and HTML, otherwise intact
@@ -45,6 +46,12 @@ var Hours = function() {
     'sito stripa': 2523,
     'idretts. dragvoll': 2517
   };
+
+  this.openToday = false;
+  this.specialCase = undefined;
+  this.todayText = undefined;
+  this.start = undefined;
+  this.end = undefined;
 };
 
 Hours.prototype.get = function (cantina, callback) {
@@ -65,8 +72,15 @@ Hours.prototype.get = function (cantina, callback) {
       // Find todays hours
       var todaysHours = self.findTodaysHours(allHours);
       if (self.debug) console.log('Todays hours:', todaysHours);
-      callback(todaysHours);
-    },
+
+      callback({
+        open: this.openToday,
+        start: this.start,
+        end: this.end,
+        special: this.specialCase,
+        message: this.openToday ? this.todayText : this.msgClosed
+      });
+    }.bind(this),
     error: function(err, data) {
       callback(self.msgConnectionError);
     }
@@ -93,7 +107,7 @@ Hours.prototype.findTodaysHours = function(allHours) {
   // Regular daily hours (not special cases)
 
   // Monday to Friday allowed at line 0
-  if (typeof pieces[0] != 'undefined') {
+  if (pieces[0] !== undefined) {
     // Filling the day array, some days might not be defined
     for (var dayNum=1; dayNum<=5; dayNum++) {
       var dayRegex = new RegExp(dayNames[dayNum],'gi');
@@ -103,7 +117,7 @@ Hours.prototype.findTodaysHours = function(allHours) {
     }
   }
   // Friday or Saturday allowed at line 1
-  if (typeof pieces[1] != 'undefined') {
+  if (pieces[1] !== undefined) {
     // Filling the day array, some days might not be defined
     for (var dayNum=5; dayNum<=6; dayNum++) {
       var dayRegex = new RegExp(dayNames[dayNum],'gi');
@@ -113,7 +127,7 @@ Hours.prototype.findTodaysHours = function(allHours) {
     }
   }
   // Saturday or Sunday allowed at line 2
-  if (typeof pieces[2] != 'undefined') {
+  if (pieces[2] !== undefined) {
     // Filling the day array, some days might not be defined
     for (var dayNum=0; dayNum==0 || dayNum == 6; dayNum+=6) {
       var dayRegex = new RegExp(dayNames[dayNum],'gi');
@@ -127,8 +141,8 @@ Hours.prototype.findTodaysHours = function(allHours) {
   // this is fairly naïve, but interestingly accurate
   var lastDay = dailyHours[1]; // Starting with monday (not sunday)
   for (var i=1; i<=5; i++) {
-    if (typeof dailyHours[i] == 'undefined') {
-      if (typeof lastDay != 'undefined') {
+    if (dailyHours[i] === undefined) {
+      if (lastDay !== undefined) {
         dailyHours[i] = lastDay;
       }
     }
@@ -143,11 +157,12 @@ Hours.prototype.findTodaysHours = function(allHours) {
   var today = dailyHours[currentDay];
 
   // Prettifying
-  if (typeof today != 'undefined') {
-    today = this.prettifyTodaysHours(today);
+  if (today !== undefined) {
+    this.openToday = true;
+    console.log(today);
+    this.todayText = this.prettifyTodaysHours(today);
+    this.getDatetime(this.todayText);
   }
-
-  var specialCase = null;
 
   // Adding any extra info to the end of the string,
   // special info might be e.g. eksamensåpent or vacations
@@ -155,29 +170,12 @@ Hours.prototype.findTodaysHours = function(allHours) {
     // Special case titles contains EITHER strong text or NEITHER days nor hours
     // Note that this is valid: <strong>Torsdag 3. oktober</strong>
     if (pieces[i].match(/\<\/?strong\>/gi) !== null || (pieces[i].match(/\w+(dag)/gi) === null && pieces[i].match(/\d?\d[\.:]\d\d/gi) === null)) {
-      specialCase = pieces.slice(i).join('<br />- ');
+      this.specialCase = pieces.slice(i).join('<br />- ');
       break;
     }
   }
-  if (specialCase !== null) {
-    if (typeof today != 'undefined') {
-      specialCase = '<br />- ' + specialCase;
-      today += specialCase;
-    }
-    else {
-      today = specialCase;
-    }
-  }
 
-  // Returning todays
-  if (typeof today != 'undefined') {
-    if (this.debug) console.log('findTodaysHours returns', today, 'from', dailyHours, 'with special case', specialCase);
-    return today;
-  }
-  else {
-    if (this.debug) console.log('findTodaysHours returns', this.msgClosed);
-    return this.msgClosed;
-  }
+  return today;
 };
 
 Hours.prototype.stripUselessLines = function(pieces) {
@@ -208,9 +206,9 @@ Hours.prototype.prettifyTodaysHours = function(todays) {
   // Add colons where missing 1600 -> 16:00
   todays = todays.replace(/(\d\d)(\d\d)/g, '$1:$2');
   // Remove unnecessarily specific time info 10:00 -> 10
-  todays = todays.replace(/:00/g, '');
+  // todays = todays.replace(/:00/g, '');
   // Trim unnecessary zero in time 08 -> 8
-  todays = todays.replace(/0(\d)/g, '$1');
+  todays = todays.replace(/0([1-9])/g, '$1');
   // Remove colon after day names
   todays = todays.replace(/: /g, ' ');
   // Change any dash or the likes between days to 'til'
@@ -227,6 +225,15 @@ Hours.prototype.capitalizeFirstLetterOnly = function(string) {
   var regex = /[a-zæøå]/;
   var firstLetter = String(string.match(regex)).toUpperCase();
   return string.replace(regex, firstLetter);
+};
+
+Hours.prototype.getDatetime = function(string) {
+  // Parses prettified hours for start and end time
+  var matches = string.match(/(\d\d:\d\d) - (\d\d:\d\d)/);
+  if(matches && matches.length > 2) {
+    this.start = moment(matches[1], 'HH:mm');
+    this.end = moment(matches[2], 'HH:mm');
+  }
 };
 
 module.exports = Hours;
