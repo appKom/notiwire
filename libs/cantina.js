@@ -60,20 +60,62 @@ var Cantina = function() {
   // Feeds
   // To single out days use 'https://www.sit.no/rss.ap?thisId=36441&ma=on' - gives 'mandag' alone
   this.feeds = {
-    'dmmh':           38798,
-    'dragvoll':       36441,
-    'elektro':        40227, // EMPTY
-    'elgeseter':      42276, // Using lunch menu because dinner is EMPTY
-    'hangaren':       36444,
-    'kalvskinnet':    36453,
-    'kjel':           31681, // EMPTY
-    'moholt':         36456,
-    'mtfs':           42015, // EMPTY
-    'realfag':        36447,
-    'rotvoll':        38910,
-    'tungasletta':    38753,
-    'tyholt':         36450,
-    'oya':            37228 // EMPTY
+    'dmmh': {
+      'lunch': 42762,
+      'dinner': 38798
+    },
+    'dragvoll': {
+      'lunch': 42330,
+      'dinner': 36441
+    },
+    'elektro': {
+      'lunch': 42546,
+      'dinner': 40227
+    },
+    'elgeseter': {
+      'lunch': 42276,
+      'dinner': 41886
+    },
+    'hangaren': {
+      'lunch': 42384,
+      'dinner': 36444
+    },
+    'kalvskinnet': {
+      'lunch': 42654,
+      'dinner': 36453
+    },
+    'kjel': {
+      'dinner': 31681,
+      'lunch': null
+    },
+    'moholt': {
+      'lunch': 42708,
+      'dinner': 36456
+    },
+    'mtfs': {
+      'lunch': 42222,
+      'dinner': 42015
+    },
+    'oya': {
+      'lunch': 42816,
+      'dinner': 37228
+    },
+    'realfag': {
+      'lunch': 42438,
+      'dinner': 36447
+    },
+    'rotvoll': {
+      'lunch': 42870,
+      'dinner': 38910
+    },
+    'tungasletta': {
+      'lunch': 42924,
+      'dinner': 38753
+    },
+    'tyholt': {
+      'lunch': 42600,
+      'dinner': 36450
+    }
   };
 
   this.names = {
@@ -130,7 +172,6 @@ Cantina.prototype.get = function (cantina, callback) {
   }
 
   cantina = cantina.toLowerCase();
-  var rssUrl = this.api + this.feeds[cantina];
   this.responseData.name = this.names[cantina];
 
   var self = this;
@@ -138,18 +179,32 @@ Cantina.prototype.get = function (cantina, callback) {
   hours.get(cantina, function(hours) {
     self.responseData.hours = hours;
     self.open = hours.open;
-    requests.xml(rssUrl, {
-      success: function(xml) {
-        // Parse menu xml
-        self.parseXml(xml, function() {
-            callback(self.responseData);
-        });
-      },
-      error: function(err, data) {
-        console.error(self.msgConnectionError);
-        self.responseData.error = self.msgConnectionError;
-        callback(self.responseData);
-      }
+    if(self.feeds[cantina] === undefined) {
+      self.responseData.error = self.msgUnsupportedCantina;
+      callback(self.responseData);
+      return;
+    }
+    var keys = Object.keys(self.feeds[cantina]);
+    async.map(keys, function(key, callback) {
+      console.log(key);
+      var rssUrl = self.api + self.feeds[cantina][key];
+      requests.xml(rssUrl, {
+        success: function(xml) {
+          // Parse menu xml
+          self.parseXml(xml, function(objects) {
+              callback(null, {name: key, value: objects});
+          });
+        },
+        error: function(err, data) {
+          console.error(self.msgConnectionError);
+          callback(null, {name: key, value: {error: self.msgConnectionError}});
+        }
+      });
+    }, function(err, results) {
+      results.forEach(function(result) {
+        self.responseData[result.name] = result.value;
+      });
+      callback(self.responseData);
     });
   });
 };
@@ -161,8 +216,7 @@ Cantina.prototype.parseXml = function(xml, callback) {
     var fullWeekDinnerInfo = xml['rdf:RDF'].item[0].description[0]; // You're welcome
     // If menu is missing: stop
     if (fullWeekDinnerInfo === undefined) {
-      self.responseData.error = self.msgClosed;
-      callback(responseData);
+      callback({message: self.msgClosed});
       return;
     }
 
@@ -185,8 +239,7 @@ Cantina.prototype.parseXml = function(xml, callback) {
     }
     // If no dinners for today were found (saturday / sunday)
     if (todaysMenu === self.msgClosed && !self.debugText) {
-      self.responseData.message = self.msgClosed;
-      callback(self.msgClosed);
+      callback({message: self.msgClosed});
       return;
     }
 
@@ -194,8 +247,7 @@ Cantina.prototype.parseXml = function(xml, callback) {
   }
   catch (err) {
     console.error('Problems during parsing of dinner xml');
-    self.responseData.error = self.msgMalformedMenu;
-    callback(self.responseData);
+    callback({error: self.msgMalformedMenu});
   }
 };
 
@@ -238,8 +290,7 @@ Cantina.prototype.parseTodaysMenu = function(todaysMenu, mondaysCantinaMenu, cal
       }
       else {
         console.error('Problems during initial parsing of todays dinner');
-        self.responseData.error = self.msgMalformedMenu;
-        callback(self.responseData);
+        callback({error: self.msgMalformedMenu});
         return;
       }
       // The dinner.index represents the current dinners index in SiT's RSS feeds
@@ -288,8 +339,7 @@ Cantina.prototype.parseTodaysMenu = function(todaysMenu, mondaysCantinaMenu, cal
       }
       else {
         if (self.debug) console.log('WARNING: no info found on monday either');
-        self.responseData.message = self.msgClosed;
-        callback(self.responseData);
+        callback({message: self.msgClosed});
       }
       return;
     }
@@ -360,8 +410,7 @@ Cantina.prototype.parseTodaysMenu = function(todaysMenu, mondaysCantinaMenu, cal
 
     // If any objects have empty text fields, remove them
     dinnerObjects = this.removeEmptyDinnerObjects(dinnerObjects);
-    this.responseData.menu = dinnerObjects;
-    callback(this.responseData);
+    callback(dinnerObjects);
   // }
   // catch (err) {
   //   console.log('ERROR: problems during deep parsing of todays dinners');
