@@ -497,7 +497,11 @@ Cantina.prototype.addMissingFoodFlags = function(text) {
 Cantina.prototype.removeTextualFoodFlags = function(text) {
   // After the flag has been added properly with addMissingFoodFlags, common cases
   // of "vegetar" in the text may be removed (shown with flag instead like "(V)")
-  text = text.replace(/vegetar( - )?/gi, '');
+  // Cases:
+  // "Vegetar - lapskaus med rømme"
+  // "Vegetar: Lapskaus med rømme"
+  // "Vegetar; lapskaus med rømme"
+  text = text.replace(/vegetar[;:\s\-]*/gi, '');
   // TODO: Watch out for Laktosefri or Glutenfri variants.
   return text;
 };
