@@ -17,18 +17,13 @@ var Meeting = function() {
 
 Meeting.prototype.get = function(affiliation, callback) {
   var self = this;
-  if (Affiliation.org[affiliation] === undefined){
-    this.responseData.error = this.msgUnknown;
-    callback(this.responseData);
-    return;
-  }
-  if(!Affiliation.hasHardware(affiliation) || !Affiliation.org[affiliation].hw.apis.meetings) {
+
+  var api = affiliation.getMeetingAPI();
+  if(api === null) {
     this.responseData.error = this.msgMissingSupport;
     callback(this.responseData);
     return;
   }
-  
-  var api = Affiliation.org[affiliation].hw.apis.meetings;
 
   var calendar = new Calendar(api, config.calendarKey);
   calendar.todayOnly();

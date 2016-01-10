@@ -14,12 +14,12 @@ var Coffee = function() {
 
 Coffee.prototype.get = function(req, affiliation, callback) {
   var that = this;
-  if(!Affiliation.hasHardware(affiliation)) {
+  if(!affiliation.hasHardware()) {
     this.responseData.error = this.msgMissingSupport;
     callback(this.responseData);
     return;
   }
-  if(Affiliation.hasLegacyCoffee(affiliation)) {
+  if(affiliation.hasLegacyCoffee()) {
     // Legacy coffee status
     this.getLegacy(affiliation, callback);
     return;
@@ -29,7 +29,7 @@ Coffee.prototype.get = function(req, affiliation, callback) {
   var coffeeDb = req.db.get('coffee');
   coffeeDb.find({
     $query: {
-      affiliation: affiliation,
+      affiliation: affiliation.key,
       brewed: {$gte: today} // Only match pots today
     },
     $orderby: {
@@ -50,7 +50,7 @@ Coffee.prototype.get = function(req, affiliation, callback) {
 };
 
 Coffee.prototype.getLegacy = function(affiliation, callback) {
-  var api = Affiliation.org[affiliation].hw.apis.coffee;
+  var api = affiliation.getLegacyCoffeeAPI();
 
   // Receives the status for the coffee pot
   var self = this;

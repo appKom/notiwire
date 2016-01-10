@@ -15,13 +15,13 @@ var Light = function() {
 
 Light.prototype.get = function(req, affiliation, callback) {
   var that = this;
-  if(!Affiliation.hasHardware(affiliation)) {
+  if(!affiliation.hasHardware()) {
       // Missing support for light status
       this.responseData.error = this.msgSupport;
       callback(this.responseData);
       return;
   }
-  if(Affiliation.hasLegacyLight(affiliation)) {
+  if(affiliation.hasLegacyLight()) {
     // Legacy light status
     this.getLegacy(affiliation, callback);
     return;
@@ -56,7 +56,7 @@ Light.prototype.get = function(req, affiliation, callback) {
 };
 
 Light.prototype.getLegacy = function(affiliation, callback) {
-  var lightApi = Affiliation.org[affiliation].hw.apis.light;
+  var lightApi = affiliation.getLegacyLightAPI();
 
   // Receives current light intensity from the office: OFF 0-lightLimit-1023 ON
   var self = this;

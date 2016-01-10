@@ -11,22 +11,19 @@ var Servant = function() {
   
   this.msgNone = 'Ingen ansvarlige nå';
   this.msgError = 'Frakoblet fra ansvarkalender';
+  this.msgMissingSupport = 'Manglende støtte';
 
   this.responseData = {};
 };
 
 Servant.prototype.get = function(affiliation, callback) {
   var self = this;
-  if (callback == undefined) {
-    console.log('ERROR: Callback is required. In the callback you should insert the results into the DOM.');
-    return;
-  }
-  if (!Affiliation.hasHardware(affiliation) || !Affiliation.org[affiliation].hw.apis.servant) {
-    this.responseData.error = "Manglende støtte";
+  var api = affiliation.getServantAPI();
+  if (api === null) {
+    this.responseData.error = this.msgMissingSupport;
     callback(this.responseData);
     return;
   }
-  var api = Affiliation.org[affiliation].hw.apis.servant;
 
   // Receives the meeting plan for today
   var calendar = new Calendar(api, config.calendarKey);
