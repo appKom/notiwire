@@ -65,6 +65,14 @@ router.route('/affiliation/:affiliation').get(function(req, res) {
     );  
 });
 
+router.route('/affiliation/').get(function(req, res) {
+  var affiliationDb = req.db.get('affiliation');
+  var query = {key: {$exists: true}, name: {$exists: true}};
+  affiliationDb.find(query, "key name feed web -_id", function(err, affiliations) {
+    res.json(affiliations);
+  });
+});
+
 router.route('/hackerspace').get(function(req, res) {
   var hackerspace = new Hackerspace();
   hackerspace.get(function(data) {
