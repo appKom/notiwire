@@ -4,8 +4,8 @@ var requests = require('./requests');
 var Hackerspace = function() {
   this.debug = 0;
 
-  this.web = 'http://hackerspace.idi.ntnu.no/';
-  this.api = 'http://hackerspace.idi.ntnu.no/api/door';
+  this.web = 'https://hackerspace-ntnu.no/';
+  this.api = 'https://hackerspace-ntnu.no/api/door';
   
   this.msgDisconnected = 'Frakoblet fra Hackerspace';
   this.msgError = 'Malformatert data fra Hackerspace';
