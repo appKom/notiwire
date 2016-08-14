@@ -18,17 +18,6 @@ log4js.configure(__dirname + "/logging.json");
 var logger = log4js.getLogger();
 
 var app = express();
-var server = require('http').Server(app);
-
-// WebSockets
-var io = require('socket.io')(server);
-io.on('connection', function(socket) {
-    console.log("Client connected.");
-
-    socket.on('disconnect', function() {
-        console.log("Lost client.");
-    });
-});
 
 // view engine setup
 nunjucks.configure('views', {
@@ -49,7 +38,6 @@ app.use(cookieParser());
 // Access to db and config in routes
 app.use(function (req, res, next) {
    req.db = db;
-   req.io = io;
    next();
 });
 
@@ -94,4 +82,4 @@ app.use(function(err, req, res, next) {
     }});
 });
 
-server.listen(3000);
+module.exports = app;
