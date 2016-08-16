@@ -1,5 +1,8 @@
+var apicache = require('apicache');
+var cache = apicache.middleware;
 var async = require('async');
 var express = require('express');
+var url = require('url');
 var router = express.Router();
 
 var Cantina = require("../libs/cantina");
@@ -9,7 +12,8 @@ var Status = require("../libs/status");
 var Meeting = require("../libs/meeting");
 var Servant = require("../libs/servant");
 
-router.route('/affiliation/:affiliation').get(function(req, res) {
+router.get('/affiliation/:affiliation', cache('1 hour'), function(req, res) {
+  req.apicacheGroup = 'affiliation_' + req.params.affiliation;
   async.parallel([
     function(callback) {
       var meeting = new Meeting();
@@ -43,24 +47,24 @@ router.route('/affiliation/:affiliation').get(function(req, res) {
       });
       res.json(data);
     }
-    );  
+    );
 });
 
-router.route('/hackerspace').get(function(req, res) {
+router.get('/hackerspace', cache('1 minute'), function(req, res) {
   var hackerspace = new Hackerspace();
   hackerspace.get(function(data) {
     res.json(data);
   });
 });
 
-router.route('/cantina/:location').get(function(req, res) {
+router.get('/cantina/:location', cache('1 hour'), function(req, res) {
   var cantina = new Cantina();
   cantina.get(req.params.location, function(data) {
     res.json(data);
   });
 });
 
-router.route('/cantina/').get(function(req, res) {
+router.get('/cantina/', cache('12 hour'), function(req, res) {
   var cantina = new Cantina();
   cantina.all(function(cantinas) {
     res.json(cantinas);

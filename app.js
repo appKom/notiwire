@@ -1,23 +1,38 @@
 #!/usr/bin/env node
-
-var express = require('express');
-var path = require('path');
-var favicon = require('serve-favicon');
-var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-var nunjucks = require('nunjucks');
+var cookieParser = require('cookie-parser');
+var debug = require('debug')('notiwire');
+var express = require('express');
+var favicon = require('serve-favicon');
+var http = require('http');
 var log4js = require("log4js");
+var path = require('path');
+var nunjucks = require('nunjucks');
+
 
 var api = require('./routes/api');
 var docs = require('./routes/docs');
 var notipi = require('./routes/notipi');
-var db = require('monk')('localhost/notiwire');
 
 // Logging
 log4js.configure(__dirname + "/logging.json");
 var logger = log4js.getLogger();
 
 var app = express();
+// MongoDB
+var db = require('monk')('localhost/notiwire');
+// WebSockets
+var io = require('socket.io')(server);
+var server = http.Server(app);
+
+io.on('connection', function(socket) {
+    console.log("Client connected.");
+
+    socket.on('disconnect', function() {
+        console.log("Lost client.");
+    });
+});
+
 
 // view engine setup
 nunjucks.configure('views', {
@@ -35,9 +50,10 @@ app.use(cookieParser());
 // app.use(express.static(path.join(__dirname, 'public')));
 
 
-// Access to db and config in routes
+// Access to db and websockets in routes
 app.use(function (req, res, next) {
    req.db = db;
+   req.io = io;
    next();
 });
 
@@ -82,4 +98,8 @@ app.use(function(err, req, res, next) {
     }});
 });
 
-module.exports = app;
+app.set('port', process.env.PORT || 3000);
+
+server.listen(app.get('port'), function() {
+  debug('Express server listening on port ' + server.address().port);
+});

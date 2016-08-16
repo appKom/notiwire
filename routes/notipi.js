@@ -1,6 +1,8 @@
-var Coffee = require('../libs/coffee');
+var apicache = require('apicache');
 var express = require('express');
 var router = express.Router();
+
+var Coffee = require('../libs/coffee');
 
 router.use(function (req, res, next) {
   req.api_key = req.body.api_key;
@@ -40,6 +42,7 @@ router.param('affiliation', function(req, res, next, id) {
 
 // Coffee endpoint
 router.post('/:affiliation/coffee', function(req, res) {
+  apicache.clear('affiliation_' + req.params.affiliation);
   var coffee = req.db.get('coffee');
   // Add new coffee
   coffee.insert({
@@ -59,6 +62,7 @@ router.post('/:affiliation/status', function(req, res) {
   if(status === undefined || !status.match(/^(true|false)$/i)) {
     res.json({error: 'Mangler lysstatus'});
   }
+  apicache.clear('affiliation_' + req.params.affiliation);
   var statusDb = req.db.get('status');
   // Adding status
   statusDb.insert({
