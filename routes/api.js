@@ -28,8 +28,7 @@ router.get('/affiliation/:affiliation', cache('1 hour'), function(req, res) {
       });
     },
     function(callback) {
-      var coffee = new Coffee();
-      coffee.get(req, req.params.affiliation, function(data) {
+      Coffee.get(req, req.params.affiliation, function(data) {
         callback(null, {name: 'coffee', value: data});
       });
     },
@@ -51,8 +50,7 @@ router.get('/affiliation/:affiliation', cache('1 hour'), function(req, res) {
 });
 
 router.get('/coffee/:affiliation', cache('1 hour'), function(req, res) {
-  var coffee = new Coffee();
-  coffee.getAll(req, req.params.affiliation, function(data) {
+  Coffee.getAll(req, req.params.affiliation, function(data) {
     res.json(data);
   });
 });

@@ -1,27 +1,19 @@
-"use strict";
-var Affiliation = require('./affiliation');
-var requests = require('./requests');
+const Affiliation = require('./affiliation');
+const requests = require('./requests');
 
-var Coffee = function() {
-  this.debug = 0;
-  this.debugString = "200\n1. March 14:28:371";
-  this.msgError = 'Klarte ikke lese status';
-  this.msgDisconnected = 'Klarte ikke hente status';
-  this.msgMissingSupport = 'Manglende støtte';
+const msgError = 'Klarte ikke lese status';
+const msgDisconnected = 'Klarte ikke hente status';
+const msgMissingSupport = 'Manglende støtte';
 
-  this.responseData = {};
-};
 
-Coffee.prototype.get = function(req, affiliation, callback) {
-  var that = this;
+const get = function(req, affiliation, callback) {
   if(!Affiliation.hasHardware(affiliation)) {
-    this.responseData.error = this.msgMissingSupport;
-    callback(this.responseData);
+    callback({ error: msgMissingSupport });
     return;
   }
   if(Affiliation.hasLegacyCoffee(affiliation)) {
     // Legacy coffee status
-    this.getLegacy(affiliation, callback);
+    getLegacy(affiliation, callback);
     return;
   }
   var today = new Date();
@@ -42,17 +34,17 @@ Coffee.prototype.get = function(req, affiliation, callback) {
        var lastPot = coffee[0];
        date = lastPot.brewed;
     }
-    that.responseData.date = date;
-    that.responseData.pots = pots;
-    callback(that.responseData);
+    callback({
+      date, pots
+    });
   });
 
 };
 
-Coffee.prototype.getAll = function(req, affiliation, callback) {
+const getAll = function(req, affiliation, callback) {
   if(!Affiliation.hasHardware(affiliation)) {
     callback({
-      error: this.msgMissingSupport
+      error: msgMissingSupport
     });
     return;
   }
@@ -73,7 +65,7 @@ Coffee.prototype.getAll = function(req, affiliation, callback) {
   });
 };
 
-Coffee.prototype.getLegacy = function(affiliation, callback) {
+const getLegacy = function(affiliation, callback) {
   var api = Affiliation.org[affiliation].hw.apis.coffee;
 
   // Receives the status for the coffee pot
@@ -101,23 +93,19 @@ Coffee.prototype.getLegacy = function(affiliation, callback) {
           date = null;
           pots = 0;
         }
-
-        self.responseData.date = date;
-        self.responseData.pots = pots;
-
-        callback(self.responseData);
+        callback({ date, pots });
       } catch (err) {
         if (self.debug) console.log('ERROR: Coffee format is wrong:', err);
-        self.responseData.error = self.msgError;
-        callback(self.responseData);
+        callback({ error: msgError });
       }
     },
     error: function(err, data) {
       if (self.debug) console.log('ERROR: Failed to get coffee pot status.');
-      self.responseData.error = self.msgDisconnected;
-      callback(self.responseData);
+      callback({ error: msgDisconnected });
     }
   });
 };
 
-module.exports = Coffee;
+module.exports = {
+  get, getAll, getLegacy
+}

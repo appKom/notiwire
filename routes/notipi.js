@@ -49,8 +49,7 @@ router.post('/:affiliation/coffee', function(req, res) {
     affiliation: req.affiliation.affiliation,
     brewed: new Date() // now
   });
-  var coffee = new Coffee();
-  coffee.get(req, req.params.affiliation, function(data) {
+  Coffee.get(req, req.params.affiliation, function(data) {
     req.io.emit('coffee', data);
   });
   res.json({success: true});
