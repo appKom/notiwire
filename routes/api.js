@@ -50,6 +50,13 @@ router.get('/affiliation/:affiliation', cache('1 hour'), function(req, res) {
     );
 });
 
+router.get('/coffee/:affiliation', cache('1 hour'), function(req, res) {
+  var coffee = new Coffee();
+  coffee.getAll(req, req.params.affiliation, function(data) {
+    res.json(data);
+  });
+});
+
 router.get('/hackerspace', cache('1 minute'), function(req, res) {
   var hackerspace = new Hackerspace();
   hackerspace.get(function(data) {

@@ -49,6 +49,30 @@ Coffee.prototype.get = function(req, affiliation, callback) {
 
 };
 
+Coffee.prototype.getAll = function(req, affiliation, callback) {
+  if(!Affiliation.hasHardware(affiliation)) {
+    callback({
+      error: this.msgMissingSupport
+    });
+    return;
+  }
+  var coffeeDb = req.db.get('coffee');
+  coffeeDb.find({
+    $query: {
+      affiliation: affiliation
+    },
+    $orderby: {
+      brewed: -1 // Latest first
+    }
+  }, function(err, pots) {
+    callback({
+      pots: pots.map(function(pot) {
+        return pot.brewed;
+      })
+    });
+  });
+};
+
 Coffee.prototype.getLegacy = function(affiliation, callback) {
   var api = Affiliation.org[affiliation].hw.apis.coffee;
 
