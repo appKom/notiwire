@@ -29,7 +29,7 @@ router.get('/affiliation/:affiliation', cache('1 hour'), function(req, res) {
     },
     function(callback) {
       Coffee.get(req, req.params.affiliation)
-      .catch((error) => { error })
+      .catch(error =>  ({ error }))
       .then(function(data) {
         callback(null, {name: 'coffee', value: data});
       });
@@ -54,7 +54,7 @@ router.get('/affiliation/:affiliation', cache('1 hour'), function(req, res) {
 router.get('/coffee/:affiliation', cache('1 hour'), function(req, res) {
   var limit = Math.round(Number(req.query.limit, 10)) || undefined;
   Coffee.getAll(req, req.params.affiliation, limit)
-  .catch((error) => { error })
+  .catch(error =>  ({ error }))
   .then(function(data) {
     res.json(data);
   });

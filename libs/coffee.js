@@ -1,6 +1,6 @@
 const Affiliation = require('./affiliation');
 const requests = require('./requests');
-var debug = require('debug')('coffee');
+const debug = require('debug')('coffee');
 
 const msgError = 'Klarte ikke lese status';
 const msgDisconnected = 'Klarte ikke hente status';
@@ -8,7 +8,7 @@ const msgMissingSupport = 'Manglende støtte';
 
 const retrieveCoffeeForToday = (coffeeDb, affiliation) => (
   new Promise((fullfill, reject) => {
-    var today = new Date();
+    const today = new Date();
     today.setHours(0, 0, 0, 0);
     coffeeDb.find({
       $query: {
@@ -18,11 +18,11 @@ const retrieveCoffeeForToday = (coffeeDb, affiliation) => (
       $orderby: {
         brewed: -1 // Latest first
       },
-    }, function(err, coffee) {
-      var pots = coffee.length;
-      var date = null;
+    }, (err, coffee) => {
+      const pots = coffee.length;
+      let date = null;
       if(pots > 0) {
-        var lastPot = coffee[0];
+        const lastPot = coffee[0];
         date = lastPot.brewed;
       }
       fullfill({ date, pots });
@@ -43,7 +43,7 @@ const get = (req, affiliation) => {
       .then(fullfill);
       return;
     }
-    var coffeeDb = req.db.get('coffee');
+    const coffeeDb = req.db.get('coffee');
     retrieveCoffeeForToday(coffeeDb, affiliation).then(fullfill);
   });
 }
@@ -54,7 +54,7 @@ const getAll = (req, affiliation, limit=10) => (
       reject(msgMissingSupport);
       return;
     }
-    var coffeeDb = req.db.get('coffee');
+    const coffeeDb = req.db.get('coffee');
     coffeeDb.find({
       $query: {
         affiliation: affiliation
@@ -64,11 +64,9 @@ const getAll = (req, affiliation, limit=10) => (
       }
     }, {
       limit
-    }, function(err, pots) {
+    }, (err, pots) => {
       fullfill({
-        pots: pots.map(function(pot) {
-          return pot.brewed;
-        })
+        pots: pots.map(pot => pot.brewed)
       });
     });
   })
@@ -76,20 +74,20 @@ const getAll = (req, affiliation, limit=10) => (
 
 const getLegacy = (affiliation) => (
   new Promise((fullfill, reject) => {
-    var api = Affiliation.org[affiliation].hw.apis.coffee;
+    const api = Affiliation.org[affiliation].hw.apis.coffee;
     // Receives the status for the coffee pot
     requests.get(api, {
-      success: function(data) {
+      success: data => {
         try {
           // Split into pot number and age of last pot
-          var pieces = data.split("\n");
-          var pots = Number(pieces[0]);
-          var ageString = pieces[1];
+          const pieces = data.split("\n");
+          let pots = Number(pieces[0]);
+          const ageString = pieces[1];
 
-          var date = new Date(ageString);
+          let date = new Date(ageString);
 
           // We're only interested in pots today
-          var today = new Date();
+          const today = new Date();
           today.setHours(0, 0, 0, 0);
           if(today > date) {
             date = null;
@@ -101,7 +99,7 @@ const getLegacy = (affiliation) => (
           reject(msgError);
         }
       },
-      error: function(err, data) {
+      error: (err, data) => {
         debug('ERROR: Failed to get coffee pot status.');
         reject(msgDisconnected);
       }
