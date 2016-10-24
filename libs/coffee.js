@@ -48,7 +48,7 @@ const get = (req, affiliation) => {
   });
 }
 
-const getAll = (req, affiliation) => (
+const getAll = (req, affiliation, limit=10) => (
   new Promise((fullfill, reject) => {
     if(!Affiliation.hasHardware(affiliation) || Affiliation.hasLegacyCoffee(affiliation)) {
       reject(msgMissingSupport);
@@ -62,6 +62,8 @@ const getAll = (req, affiliation) => (
       $orderby: {
         brewed: -1 // Latest first
       }
+    }, {
+      limit
     }, function(err, pots) {
       fullfill({
         pots: pots.map(function(pot) {
