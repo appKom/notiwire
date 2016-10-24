@@ -12,6 +12,13 @@ var Status = require("../libs/status");
 var Meeting = require("../libs/meeting");
 var Servant = require("../libs/servant");
 
+// Add CORS headers
+router.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
+
 router.get('/affiliation/:affiliation', cache('1 hour'), function(req, res) {
   req.apicacheGroup = 'affiliation_' + req.params.affiliation;
   async.parallel([
