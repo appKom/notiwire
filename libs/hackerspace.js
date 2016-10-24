@@ -1,38 +1,32 @@
 "use strict";
-var requests = require('./requests');
+const requests = require('./requests');
+const debug = require('debug')('hackerpace');
 
-var Hackerspace = function() {
-  this.debug = 0;
+const API_URL = 'https://hackerspace-ntnu.no/door/get_status/';
 
-  this.web = 'https://hackerspace-ntnu.no/';
-  this.api = 'https://hackerspace-ntnu.no/door/get_status/';
+const MSG_DISCONNECTED = 'Frakoblet fra Hackerspace';
+const MSG_ERROR = 'Malformatert data fra Hackerspace';
 
-  this.msgDisconnected = 'Frakoblet fra Hackerspace';
-  this.msgError = 'Malformatert data fra Hackerspace';
-  this.responseData = {};
-};
+const get = () => (
+  new Promise((fullfill, reject) => {
+    requests.json(API_URL, {
+      success: door => {
+        debug('Raw door:\n\n', door);
 
-Hackerspace.prototype.get = function(callback) {
-  var self = this;
-  requests.json(self.api, {
-    success: function(door) {
-      if (self.debug) console.log('Raw door:\n\n', door);
-
-      if (typeof door === 'string') {
-        self.responseData.open = door === 'True';
+        if (typeof door === 'string') {
+          fullfill({ open: door === 'True' });
+        }
+        else {
+          // Empty string returned from API
+          reject(MSG_ERROR);
+        }
+      },
+      error: function(jqXHR, text, err) {
+        debug('ERROR: Failed to get hackerspace info.');
+        reject(MSG_DISCONNECTED);
       }
-      else {
-        // Empty string returned from API
-        self.responseData.error = self.msgError;
-      }
-      callback(self.responseData);
-    },
-    error: function(jqXHR, text, err) {
-      if (self.debug) console.log('ERROR: Failed to get hackerspace info.');
-      self.responseData.error = self.msgDisconnected;
-      callback(self.responseData);
-    }
-  });
-};
+    });
+  })
+);
 
-module.exports = Hackerspace;
+module.exports = { get };

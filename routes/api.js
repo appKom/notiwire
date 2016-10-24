@@ -68,8 +68,9 @@ router.get('/coffee/:affiliation', cache('1 hour'), (req, res) => {
 });
 
 router.get('/hackerspace', cache('1 minute'), (req, res) => {
-  const hackerspace = new Hackerspace();
-  hackerspace.get(data => {
+  Hackerspace.get()
+  .catch(error => ({ error }))
+  .then(data => {
     res.json(data);
   });
 });
