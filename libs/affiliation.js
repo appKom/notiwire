@@ -2,7 +2,7 @@
 
 var Affiliation = {
   debug: 0,
-  
+
   // IMPORTANT: Keep the same order of affiliations here as in options.html
 
   // Explanation of organization attributes:
@@ -84,7 +84,7 @@ var Affiliation = {
     },
 
     // Linjeforeninger Gløshaugen
-    
+
     'abakus': {
       name: 'Abakus',
       key: 'abakus',
@@ -98,7 +98,7 @@ var Affiliation = {
       hw: {
         office: "Abakuskontoret",
         apis: {
-          coffee: 'http://kaffe.abakus.no/coffee.txt',
+          coffee: 'https://kaffe.abakus.no/coffee.txt',
           light: 'http://informatikk.org/abakus/lys.txt',
           servant: null, // TODO
           meetings: '3ms24h7vpud4clrtt2grtadgm0%40group.calendar.google.com',
@@ -131,7 +131,7 @@ var Affiliation = {
               $(html).find('.article').each( function() {
                 if (count < posts.length) {
                   var post = posts[count];
-                  
+
                   // The popular fields
                   post.title = $(this).find("h2").filter(':first').text();
                   post.link = $(this).find("a").filter(':first').attr('href');
@@ -341,7 +341,7 @@ var Affiliation = {
               $(html).find('div .post .caption').each( function() {
                 if (count < posts.length) {
                   var post = posts[count];
-                  
+
                   // The popular fields
                   post.title = $(this).find("h3 a").filter(':first').text();
                   post.link = $(this).find("p:last a").attr('href');
@@ -393,13 +393,13 @@ var Affiliation = {
           url: self.web,
           success: function(html) {
             var count = 0;
-            
+
             // Add each item from news tags
             if ($(html).find('div.news').length != 0) {
               $(html).find('div.news').each( function() {
                 if (count < posts.length) {
                   var post = posts[count];
-                  
+
                   // The popular fields
                   post.title = $(this).find('h5 a').text();
                   post.link = $(this).find('h5 a').attr('href');
@@ -837,13 +837,13 @@ var Affiliation = {
           url: self.web,
           success: function(html) {
             var count = 0;
-            
+
             // Add each item from news tags
             if ($(html).find('#articles').children().length != 0) {
               $(html).find('#articles').children().each( function() {
                 if (count < posts.length) {
                   var post = posts[count];
-                  
+
                   // The popular fields
                   post.title = $(this).find('.articleBody h2 a').text();
                   post.link = $(this).find('.articleBody h2 a').prop('href');
