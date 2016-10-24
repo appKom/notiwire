@@ -1,16 +1,16 @@
-var apicache = require('apicache');
-var cache = apicache.middleware;
-var async = require('async');
-var express = require('express');
-var url = require('url');
-var router = express.Router();
+const apicache = require('apicache');
+const cache = apicache.middleware;
+const async = require('async');
+const express = require('express');
+const url = require('url');
+const router = express.Router();
 
-var Cantina = require("../libs/cantina");
-var Coffee = require("../libs/coffee");
-var Hackerspace = require("../libs/hackerspace");
-var Status = require("../libs/status");
-var Meeting = require("../libs/meeting");
-var Servant = require("../libs/servant");
+const Cantina = require("../libs/cantina");
+const Coffee = require("../libs/coffee");
+const Hackerspace = require("../libs/hackerspace");
+const Status = require("../libs/status");
+const Meeting = require("../libs/meeting");
+const Servant = require("../libs/servant");
 
 // Add CORS headers
 router.use((req, res, next) => {
@@ -19,38 +19,38 @@ router.use((req, res, next) => {
   next();
 });
 
-router.get('/affiliation/:affiliation', cache('1 hour'), function(req, res) {
-  req.apicacheGroup = 'affiliation_' + req.params.affiliation;
+router.get('/affiliation/:affiliation', cache('1 hour'), (req, res) => {
+  req.apicacheGroup = `affiliation_${req.params.affiliation}`;
   async.parallel([
-    function(callback) {
-      var meeting = new Meeting();
-      meeting.get(req.params.affiliation, function(data) {
+    callback => {
+      const meeting = new Meeting();
+      meeting.get(req.params.affiliation, data => {
         callback(null, {name: 'meeting', value: data});
       });
     },
-    function(callback) {
-      var servant = new Servant();
-      servant.get(req.params.affiliation, function(data) {
+    callback => {
+      const servant = new Servant();
+      servant.get(req.params.affiliation, data => {
         callback(null, {name: "servant", value: data});
       });
     },
-    function(callback) {
+    callback => {
       Coffee.get(req, req.params.affiliation)
       .catch(error =>  ({ error }))
-      .then(function(data) {
+      .then(data => {
         callback(null, {name: 'coffee', value: data});
       });
     },
-    function(callback) {
-      var status = new Status();
-      status.get(req, req.params.affiliation, function(data) {
+    callback => {
+      const status = new Status();
+      status.get(req, req.params.affiliation, data => {
         callback(null, {name: 'status', value: data});
       });
     }
     ],
-    function(err, results) {
-      var data = {};
-      results.forEach(function(result) {
+    (err, results) => {
+      const data = {};
+      results.forEach(result => {
         data[result.name] = result.value;
       });
       res.json(data);
@@ -58,32 +58,32 @@ router.get('/affiliation/:affiliation', cache('1 hour'), function(req, res) {
     );
 });
 
-router.get('/coffee/:affiliation', cache('1 hour'), function(req, res) {
-  var limit = Math.round(Number(req.query.limit, 10)) || undefined;
+router.get('/coffee/:affiliation', cache('1 hour'), (req, res) => {
+  const limit = Math.round(Number(req.query.limit, 10)) || undefined;
   Coffee.getAll(req, req.params.affiliation, limit)
   .catch(error =>  ({ error }))
-  .then(function(data) {
+  .then(data => {
     res.json(data);
   });
 });
 
-router.get('/hackerspace', cache('1 minute'), function(req, res) {
-  var hackerspace = new Hackerspace();
-  hackerspace.get(function(data) {
+router.get('/hackerspace', cache('1 minute'), (req, res) => {
+  const hackerspace = new Hackerspace();
+  hackerspace.get(data => {
     res.json(data);
   });
 });
 
-router.get('/cantina/:location', cache('1 hour'), function(req, res) {
-  var cantina = new Cantina();
-  cantina.get(req.params.location, function(data) {
+router.get('/cantina/:location', cache('1 hour'), (req, res) => {
+  const cantina = new Cantina();
+  cantina.get(req.params.location, data => {
     res.json(data);
   });
 });
 
-router.get('/cantina/', cache('12 hour'), function(req, res) {
-  var cantina = new Cantina();
-  cantina.all(function(cantinas) {
+router.get('/cantina/', cache('12 hour'), (req, res) => {
+  const cantina = new Cantina();
+  cantina.all(cantinas => {
     res.json(cantinas);
   });
 });
