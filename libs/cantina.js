@@ -189,6 +189,7 @@ Cantina.prototype.get = function (cantina, callback) {
     async.map(keys, function(key, callback) {
       debug(key);
       var rssUrl = self.api + self.feeds[cantina][key];
+      debug(rssUrl);
       requests.xml(rssUrl, {
         success: function(xml) {
           // Parse menu xml
@@ -214,8 +215,12 @@ Cantina.prototype.get = function (cantina, callback) {
 Cantina.prototype.parseXml = function(xml, callback) {
   var self = this;
   try {
-    var fullWeekDinnerInfo = xml['rdf:RDF'].item[0].description[0]; // You're welcome
     // If menu is missing: stop
+    if(!xml['rdf:RDF'].item) {
+      callback({message: self.msgClosed});
+      return;
+    }
+    var fullWeekDinnerInfo = xml['rdf:RDF'].item[0].description[0]; // You're welcome
     if (fullWeekDinnerInfo === undefined) {
       callback({message: self.msgClosed});
       return;
