@@ -11,7 +11,6 @@ const MSG_MISSING_SUPPORT = 'Manglende støtte';
 const MSG_UNKNOWN = 'Ukjent forening';
 const MSG_OCCUPIED = 'Kontoret er opptatt';
 
-
 const get = (affiliation, callback) => (
   new Promise((fullfill, reject) => {
     if (Affiliation.org[affiliation] === undefined) {
@@ -29,23 +28,7 @@ const get = (affiliation, callback) => (
     calendar.todayOnly();
     calendar.get({
       success: (meetings) => {
-        meetings.forEach(function(meeting) {
-          meeting.message = prettifyTodaysMeetings(meeting.pretty + ' ' + meeting.summary);
-        });
-
-        let message = MSG_NONE;
-        let free = true;
-
-        // Meeting is going on right now
-        if(meetings.length > 0) {
-          const current = meetings[0];
-          const now = new Date();
-          if (current.start.date <= now && now <= current.end.date) {
-            message = MSG_OCCUPIED;
-            free = false;
-          }
-        }
-        fullfill({ message, free, meetings });
+        fullfill(officeStatus(meetings));
       },
       error: function(err, body) {
         reject(MSG_ERROR);
@@ -53,6 +36,26 @@ const get = (affiliation, callback) => (
     });
   })
 );
+
+const officeStatus = (meetings) => {
+  meetings.forEach(function(meeting) {
+    meeting.message = prettifyTodaysMeetings(meeting.pretty + ' ' + meeting.summary);
+  });
+
+  let message = MSG_NONE;
+  let free = true;
+
+  // Meeting is going on right now
+  if(meetings.length > 0) {
+    const current = meetings[0];
+    const now = new Date();
+    if (current.start.date <= now && now <= current.end.date) {
+      message = MSG_OCCUPIED;
+      free = false;
+    }
+  }
+  return { message, free, meetings };
+}
 
 const prettifyTodaysMeetings = function(meetings) {
   meetings = meetings.trim();
