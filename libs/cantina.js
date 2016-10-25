@@ -1,5 +1,6 @@
 "use strict";
 var async = require('async');
+const debug = require('debug')('cantina');
 var xml2js = require('xml2js');
 var Hours = require('./hours');
 var requests = require('./requests');
@@ -27,7 +28,7 @@ var Cantina = function() {
   // https://www.sit.no/rss.ap?thisId=1468 dinner/DEPRECATED - Elektro
   // https://www.sit.no/rss.ap?thisId=1471 kiosk/EMPTY - Café Sito Realfag
   // https://www.sit.no/rss.ap?thisId=1472 kiosk/EMPTY - Café Sito Stripa
-  // https://www.sit.no/rss.ap?thisId=1476 kiosk/EMPTY - Matbaren Idrettssenteret  
+  // https://www.sit.no/rss.ap?thisId=1476 kiosk/EMPTY - Matbaren Idrettssenteret
   // https://www.sit.no/rss.ap?thisId=31862 kiosk/EMPTY - Storkiosk Dragvoll
   // https://www.sit.no/rss.ap?thisId=36441 dinner - Dragvoll
   // https://www.sit.no/rss.ap?thisId=36444 dinner - Hangaren
@@ -165,7 +166,7 @@ Cantina.prototype.all = function(callback) {
 
 Cantina.prototype.get = function (cantina, callback) {
   if (this.names[cantina] === undefined) {
-    if (this.debug) console.error(this.msgUnsupportedCantina);
+    debug(this.msgUnsupportedCantina);
     this.responseData.error = this.msgUnsupportedCantina;
     callback(this.responseData);
     return;
@@ -186,7 +187,7 @@ Cantina.prototype.get = function (cantina, callback) {
     }
     var keys = Object.keys(self.feeds[cantina]);
     async.map(keys, function(key, callback) {
-      console.log(key);
+      debug(key);
       var rssUrl = self.api + self.feeds[cantina][key];
       requests.xml(rssUrl, {
         success: function(xml) {
@@ -196,7 +197,7 @@ Cantina.prototype.get = function (cantina, callback) {
           });
         },
         error: function(err, data) {
-          console.error(self.msgConnectionError);
+          debug(self.msgConnectionError);
           callback(null, {name: key, value: {error: self.msgConnectionError}});
         }
       });
@@ -246,7 +247,7 @@ Cantina.prototype.parseXml = function(xml, callback) {
     self.parseTodaysMenu(todaysMenu, mondaysCantinaMenu, callback);
   }
   catch (err) {
-    console.error('Problems during parsing of dinner xml');
+    debug('Problems during parsing of dinner xml');
     callback({error: self.msgMalformedMenu});
   }
 };
@@ -267,7 +268,7 @@ Cantina.prototype.parseTodaysMenu = function(todaysMenu, mondaysCantinaMenu, cal
       if (self.debugText && indexCount === 0) {
         dinner = self.debugThisText;
       }
-      
+
       if (dinner.indexOf(': ') !== -1) {
         var description = dinner.substring(0, dinner.lastIndexOf(': '));
         var price = dinner.substring(dinner.lastIndexOf(': ') + 2);
@@ -277,19 +278,19 @@ Cantina.prototype.parseTodaysMenu = function(todaysMenu, mondaysCantinaMenu, cal
         if ((description.indexOf('/') !== -1) && (price.indexOf('/') !== -1)) {
           var descriptions = description.split('/');
           var prices = price.split('/');
-          if (self.debugText) console.log('WARNING: multiple dinners in one cell: ' + descriptions + ', ' + prices + ', index: ' + index);
+          debug('WARNING: multiple dinners in one cell: ' + descriptions + ', ' + prices + ', index: ' + index);
           dinnerObjects.push(new self.dinnerObject(descriptions[0], prices[0], indexCount));
           dinnerObjects.push(new self.dinnerObject(descriptions[1], prices[1], indexCount));
         }
 
         else {
           var singleDinner = new self.dinnerObject(description, price, indexCount);
-          if (self.debug) console.log(singleDinner.price + ', ' + singleDinner.text  + ', ' + singleDinner.index);
+          debug(singleDinner.price + ', ' + singleDinner.text  + ', ' + singleDinner.index);
           dinnerObjects.push(singleDinner);
         }
       }
       else {
-        console.error('Problems during initial parsing of todays dinner');
+        debug('Problems during initial parsing of todays dinner');
         callback({error: self.msgMalformedMenu});
         return;
       }
@@ -320,11 +321,11 @@ Cantina.prototype.parseTodaysMenu = function(todaysMenu, mondaysCantinaMenu, cal
             price = price1;
           else
             price = ( Number(price1) < Number(price2) ? price1 : price2 );
-          if (self.debug) console.log('Price from "'+dinner.price+'" to "'+price+'" (DUAL price)');
+          debug('Price from "'+dinner.price+'" to "'+price+'" (DUAL price)');
         }
         else {
           price = price.match(/\d+/g);
-          if (self.debug) console.log('Price from "'+dinner.price+'" to "'+price+'"');
+          debug('Price from "'+dinner.price+'" to "'+price+'"');
         }
         dinner.price = price;
       }
@@ -332,13 +333,13 @@ Cantina.prototype.parseTodaysMenu = function(todaysMenu, mondaysCantinaMenu, cal
 
     // If no dinner info is found at all, check for unique message at monday if open
     if (dinnerObjects.length === 0) {
-      if (self.debug) console.log('WARNING: no dinner menu found today, checking monday');
+      debug('WARNING: no dinner menu found today, checking monday');
       if (self.open && mondaysCantinaMenu !== null) {
         // WARNING: recursion is divine!
         self.parseTodaysMenu(mondaysCantinaMenu, null, callback);
       }
       else {
-        if (self.debug) console.log('WARNING: no info found on monday either');
+        debug('WARNING: no info found on monday either');
         callback({message: self.msgClosed});
       }
       return;
@@ -386,7 +387,7 @@ Cantina.prototype.parseTodaysMenu = function(todaysMenu, mondaysCantinaMenu, cal
         text = self.removePunctuationAtEndOfLine(text);
       }
       text = self.capitalize(text);
-      if (self.debug) console.log('\nFrom\t"'+dinner.text+'"\nTo\t\t"'+text+'"\n');
+      debug('\nFrom\t"'+dinner.text+'"\nTo\t\t"'+text+'"\n');
       // Add flags
       if (dinner.flags !== null)
         text += ' ' + dinner.flags;
@@ -454,7 +455,7 @@ Cantina.prototype.removeEmptyDinnerObjects = function(dinnerObjects) {
 Cantina.prototype.removePartsAfter = function(keys, text) {
   var self = this;
   for (var i in keys) {
-    if (self.debugText) console.log(keys[i] + (keys[i].length<4?'\t\t':'\t') + ':: ' + text);
+    debug(keys[i] + (keys[i].length<4?'\t\t':'\t') + ':: ' + text);
     if (text.indexOf(keys[i]) !== -1)
       text = text.split(keys[i])[0];
   }
@@ -467,7 +468,7 @@ Cantina.prototype.removeLastWords = function(keys, text) {
   // Example: "Raspeballer med frisk salat", where "med" and "frisk" are keywords.
   for (var i=0; i<2; i++) {
     for (var j in keys) {
-      if (self.debugText) console.log(keys[j] + (keys[j].length<4?'\t\t':'\t') + ':: ' + text);
+      debug(keys[j] + (keys[j].length<4?'\t\t':'\t') + ':: ' + text);
       var spacedKey = ' '+keys[j];
       if (self.endsWith(spacedKey, text)) {
         var pieces = text.split(' ');
@@ -522,7 +523,7 @@ Cantina.prototype.getFoodFlags = function(text) {
 };
 
 Cantina.prototype.removeFoodFlags = function(text) {
-  if (this.debugText) console.log('Flags\t:: ' + text);
+  debug('Flags\t:: ' + text);
   // Removes food flags like V,G,L in all known forms. Seriously. All known forms. Don't.
   return text.replace(/([,;&(.\/]*\b[VGL]+(?![æøåÆØÅ])\b[,;&).\s]*)+/g, '');
   // return text.replace(/([,;&\(\/\.]*\b[VGL]+(?![æøåÆØÅ])\b[,;&\s\)\.]*)+/g, '');
@@ -535,31 +536,31 @@ Cantina.prototype.removeFoodFlags = function(text) {
 };
 
 Cantina.prototype.addMissingSpaces = function(text) {
-  if (this.debugText) console.log('Spaces\t:: ' + text);
+  debug('Spaces\t:: ' + text);
   // Add spaces where missing, like "smør,brød,sopp" to "smør, brød, sopp"
   return text.replace(/([a-zA-Z0-9æøåÆØÅ])(,)([a-zA-Z0-9æøåÆØÅ])/gi, '$1, $3');
 };
 
 Cantina.prototype.shortenFoodServedWith = function(text) {
-  if (this.debugText) console.log('Served\t:: ' + text);
+  debug('Served\t:: ' + text);
   // Replace wordings like 'servert med' to just 'med'
   return text.replace(/[,|\.]?\s?(ser(e)?ver\w*(t|es)?)?\s?med\s/gi, ' med ');
 };
 
 Cantina.prototype.shortenFoodWithATasteOf = function(text) {
-  if (this.debugText) console.log('TasteOf\t:: ' + text);
+  debug('TasteOf\t:: ' + text);
   // Replace wordings like 'med en liten smak av' to just 'med'
   return text.replace(/[,|\.]?\s?(med)?\s?(en|et)?\s?(liten?)?\s?(smak|hint|dæsj|tøtsj)\s?(av)?\s/gi, ' med ');
 };
 
 Cantina.prototype.shortenTodaysSoup = function(text) {
-  if (this.debugText) console.log('Soup\t:: ' + text);
+  debug('Soup\t:: ' + text);
   // Shortening "Dagens suppe - Løksuppe med løk (G)" to "Løksuppe med løk (G)"
   return text.replace(/dagens suppe(\: | - )/gi, '');
 };
 
 Cantina.prototype.lessUPPERCASEplease = function(text) {
-  if (this.debugText) console.log('UPPER\t:: ' + text);
+  debug('UPPER\t:: ' + text);
   // Changing "FREDAGS RETTEN" to "fredags retten" (capitalized first letter added later)
   return text.replace(/([A-ZÆØÅ]{4,})/g, function(v) {
     return v.toLowerCase();
@@ -567,26 +568,26 @@ Cantina.prototype.lessUPPERCASEplease = function(text) {
 };
 
 Cantina.prototype.expandAbbreviations = function(text) {
-  if (this.debugText) console.log('Abbrev.\t:: ' + text);
+  debug('Abbrev.\t:: ' + text);
   // Replace wordings like 'm', 'm/' with the actual word, make sure there is one space on either side of the word
   return text.replace(/([a-zæøåÆØÅ]*)[ ,\.]\/?m(\/|\s) ?/gi, '$1 med ');
 };
 
 Cantina.prototype.removeFoodHomeMade = function(text) {
-  if (this.debugText) console.log('Home\t:: ' + text);
+  debug('Home\t:: ' + text);
   // Replace wordings like 'Hjemmelagde kjøttkaker' to just 'Kjøttkaker'
   text = text.replace(/^\s?hjemmelag(et|de)\s/gi, '');
   return text.charAt(0).toUpperCase() + text.slice(1);
 };
 
 Cantina.prototype.removePunctuationAtEndOfLine = function(text) {
-  if (this.debugText) console.log(',;.-\t:: ' + text);
+  debug(',;.-\t:: ' + text);
   // Removing use of punctuation at EOL in lists, like: "39,- Pasta bolognaise."
   return text.replace(/[,;.-]$/gm, '');
 };
 
 Cantina.prototype.limitNumberOfWords = function(limit, originalText) {
-  if (this.debugText) console.log(limit + '\t\t:: ' + originalText);
+  debug(limit + '\t\t:: ' + originalText);
   var text = originalText;
   if (text.split(' ').length > limit) {
     text = text.split(' ').splice(0,limit).join(' ');

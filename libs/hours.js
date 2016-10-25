@@ -1,9 +1,10 @@
 "use strict";
+const debug = require('debug')('hours');
 var requests = require('./requests');
 var moment = require('moment-timezone');
 
 var Hours = function() {
-  
+
   // This file contains Opening Hours for the SiT cantinas.
   // SiTs new format for ajaxing hours is a POST api:
   // curl --data "diner=2532" https://www.sit.no/ajaxdiner/get
@@ -13,7 +14,7 @@ var Hours = function() {
   this.msgClosed = 'Det er nok stengt';
   this.msgConnectionError = 'Frakoblet fra sit.no/ajax';
   this.msgMalformedHours = 'Galt format på åpningstider';
-  
+
   this.debug = 0; // General debugging
   this.debugDay = 0; // Whether or not to debug a particular day
   this.debugThisDay = 5; // Number corresponding to day of week, 0 is sunday
@@ -159,7 +160,7 @@ Hours.prototype.findTodaysHours = function(allHours) {
   // Prettifying
   if (today !== undefined) {
     this.openToday = true;
-    console.log(today);
+    debug(today);
     this.todayText = this.prettifyTodaysHours(today);
     this.getDatetime(this.todayText);
   }
