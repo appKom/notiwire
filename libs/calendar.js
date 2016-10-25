@@ -95,17 +95,18 @@ Calendar.prototype.midnight = function() {
     return moment().tz(this.params.timezone).add(1, 'days').hour(0).minute(0).second(0);
 };
 
-Calendar.prototype.get = function(callback) {
-    var that = this;
-    requests.json(this.generateUrl(), {
-        success: function(meetings) {
-            meetings.items.forEach(function(meeting) {
-                that.prettify(meeting);
-            });
-            callback.success(meetings.items);
-        },
-        error: callback.error
+Calendar.prototype.get = function() {
+    return new Promise((fullfill, reject) => {
+      requests.json(this.generateUrl(), {
+          success: (meetings) => {
+              meetings.items.forEach(meeting => {
+                  this.prettify(meeting);
+              });
+              fullfill(meetings.items);
+          },
+          error: reject
+      });
     });
-};
+}
 
 module.exports = Calendar;
