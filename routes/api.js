@@ -23,8 +23,9 @@ router.get('/affiliation/:affiliation', cache('1 hour'), (req, res) => {
   req.apicacheGroup = `affiliation_${req.params.affiliation}`;
   async.parallel([
     callback => {
-      const meeting = new Meeting();
-      meeting.get(req.params.affiliation, data => {
+      Meeting.get(req.params.affiliation)
+      .catch(error =>  ({ error }))
+      .then(data => {
         callback(null, {name: 'meeting', value: data});
       });
     },
@@ -49,11 +50,15 @@ router.get('/affiliation/:affiliation', cache('1 hour'), (req, res) => {
     }
     ],
     (err, results) => {
-      const data = {};
-      results.forEach(result => {
-        data[result.name] = result.value;
-      });
-      res.json(data);
+      // Combine results to object
+      res.json(results.reduce(
+        (data, result) => {
+          data[result.name] = result.value;
+          return data;
+        },
+        // Initial value
+        {}
+      ));
     }
     );
 });
