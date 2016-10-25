@@ -44,8 +44,9 @@ router.get('/affiliation/:affiliation', cache('1 hour'), (req, res) => {
       });
     },
     callback => {
-      const status = new Status();
-      status.get(req, req.params.affiliation, data => {
+      Status.get(req, req.params.affiliation)
+      .catch(error =>  ({ error }))
+      .then(data => {
         callback(null, {name: 'status', value: data});
       });
     }

@@ -1,84 +1,85 @@
-"use strict";
+const Affiliation = require('./affiliation');
+const debug = require('debug')('status');
+const requests = require('./requests');
 
-var Affiliation = require('./affiliation');
-var requests = require('./requests');
+const MSG_ERROR = 'Klarte ikke hente status';
+const MSG_SUPPORT = 'Manglende støtte';
 
-var Light = function() {
-  this.msgError = 'Klarte ikke hente status';
-  this.msgSupport = 'Manglende støtte';
+// Light limit, 0-860 is ON, 860-1023 is OFF
+const LIGHT_LIMIT = 860;
 
-  // Light limit, 0-860 is ON, 860-1023 is OFF
-  this.lightLimit = 860;
 
-  this.responseData = {};
-};
-
-Light.prototype.get = function(req, affiliation, callback) {
-  var that = this;
-  if(!Affiliation.hasHardware(affiliation)) {
-      // Missing support for light status
-      this.responseData.error = this.msgSupport;
-      callback(this.responseData);
+const get = (req, affiliation) => (
+  new Promise((fullfill, reject) => {
+    if(!Affiliation.hasHardware(affiliation)) {
+        // Missing support for light status
+        reject(MSG_SUPPORT);
+    }
+    if(Affiliation.hasLegacyLight(affiliation)) {
+      // Legacy light status
+      getLegacy(affiliation)
+      .catch(reject)
+      .then(fullfill);
       return;
-  }
-  if(Affiliation.hasLegacyLight(affiliation)) {
-    // Legacy light status
-    this.getLegacy(affiliation, callback);
-    return;
-  }
-  var lastDay = new Date();
-  lastDay.setDate(lastDay.getDate() - 1);
-  var statusDb = req.db.get('status');
-  statusDb.findOne({
-    $query: {
-      affiliation: affiliation,
-      updated: {$gte: lastDay} // Only get status updates from the last 24h
-    },
-    $orderby: {
-      updated: -1 // Latest first
     }
-  }, function(err, status) {
-    if(err !== null) {
-      // Something went wrong!
-      that.responseData.error = that.msgError;
-    }
-    else if(status !== null) {
-      that.responseData.status = status.status;
-      that.responseData.updated = status.updated;
-    }
-    else {
-      // No status updated today
-      that.responseData.status = null;
-      that.responseData.updated = null;
-    }
-    callback(that.responseData);
-  });
-};
-
-Light.prototype.getLegacy = function(affiliation, callback) {
-  var lightApi = Affiliation.org[affiliation].hw.apis.light;
-
-  // Receives current light intensity from the office: OFF 0-lightLimit-1023 ON
-  var self = this;
-  requests.get(lightApi, {
-    success: function(data) {
-      var lights = false;
-
-      if (!isNaN(data)) {
-        lights = data < self.lightLimit;
+    const lastDay = new Date();
+    lastDay.setDate(lastDay.getDate() - 1);
+    const statusDb = req.db.get('status');
+    statusDb.findOne({
+      $query: {
+        affiliation: affiliation,
+        updated: {$gte: lastDay} // Only get status updates from the last 24h
+      },
+      $orderby: {
+        updated: -1 // Latest first
+      }
+    }, (err, status) => {
+      if(err !== null) {
+        // Something went wrong!
+        reject(MSG_ERROR);
+      }
+      else if(status !== null) {
+        fullfill({
+          status: status.status,
+          updated: status.updated
+        })
       }
       else {
-        lights = data.match(/(on|true|på)/gi) !== null;
+        // No status updated today
+        fullfill({
+          status: null,
+          updated: null
+        });
       }
-      self.responseData.status = lights;
-      callback(self.responseData);
-    },
-    error: function(err, data) {
-      if (self.debug) console.log('ERROR: Failed to get light data.');
-      self.responseData.error = self.msgError;
-      callback(self.responseData);
-    }
-  });
-};
+    });
+  })
+);
 
-module.exports = Light;
+const getLegacy = (affiliation, callback) => (
+  new Promise((fullfill, reject) => {
+    const lightApi = Affiliation.org[affiliation].hw.apis.light;
+
+    // Receives current light intensity from the office: OFF 0-lightLimit-1023 ON
+    requests.get(lightApi, {
+      success: (data) => {
+        let lights = false;
+
+        if (!isNaN(data)) {
+          lights = data < LIGHT_LIMIT;
+        }
+        else {
+          lights = data.match(/(on|true|på)/gi) !== null;
+        }
+        fullfill({
+          status: lights
+        });
+      },
+      error: (err, data) => {
+        debug('ERROR: Failed to get light data.');
+        reject(MSG_ERROR);
+      }
+    });
+  })
+);
+
+module.exports = { get };
