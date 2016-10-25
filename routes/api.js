@@ -1,4 +1,5 @@
 const apicache = require('apicache');
+const debug = require('debug')('api');
 const cache = apicache.middleware;
 const async = require('async');
 const express = require('express');
@@ -19,50 +20,56 @@ router.use((req, res, next) => {
   next();
 });
 
+const getDataSources = (req) => {
+  const affiliation = req.params.affiliation;
+  const sources = [
+    {
+      name: 'meeting',
+      promise: Meeting.get(affiliation)
+    },
+    {
+      name: 'servant',
+      promise: Servant.get(affiliation)
+    },
+    {
+      name: 'coffee',
+      promise: Coffee.get(req, affiliation)
+    },
+    {
+      name: 'status',
+      promise: Status.get(req, affiliation)
+    }
+  ];
+  const sourcesWithCatchHandled = sources.map(source => {
+    return source.promise
+    .catch(error => ({ error }))
+    .then(data => ({ name: source.name, value: data }));
+  })
+  return sourcesWithCatchHandled;
+}
+
+const reduceResultsToObject = results => (
+  results.reduce(
+    (data, result) => {
+      data[result.name] = result.value;
+      return data;
+    },
+    // Initial value
+    {}
+  )
+);
+
 router.get('/affiliation/:affiliation', cache('1 hour'), (req, res) => {
   req.apicacheGroup = `affiliation_${req.params.affiliation}`;
-  async.parallel([
-    callback => {
-      Meeting.get(req.params.affiliation)
-      .catch(error =>  ({ error }))
-      .then(data => {
-        callback(null, {name: 'meeting', value: data});
-      });
-    },
-    callback => {
-      Servant.get(req.params.affiliation)
-      .catch(error =>  ({ error }))
-      .then(data => {
-        callback(null, {name: "servant", value: data});
-      });
-    },
-    callback => {
-      Coffee.get(req, req.params.affiliation)
-      .catch(error =>  ({ error }))
-      .then(data => {
-        callback(null, {name: 'coffee', value: data});
-      });
-    },
-    callback => {
-      Status.get(req, req.params.affiliation)
-      .catch(error =>  ({ error }))
-      .then(data => {
-        callback(null, {name: 'status', value: data});
-      });
-    }
-    ],
-    (err, results) => {
-      // Combine results to object
-      res.json(results.reduce(
-        (data, result) => {
-          data[result.name] = result.value;
-          return data;
-        },
-        // Initial value
-        {}
-      ));
-    }
-    );
+  // Wait for all promises to finish and then return the results
+  Promise.all(getDataSources(req))
+  .then(results => {
+    res.json(reduceResultsToObject(results));
+  })
+  .catch(error => {
+    debug('An error happened while processing results', error);
+    res.json(new Error('En feil skjedde'));
+  });
 });
 
 router.get('/coffee/:affiliation', cache('1 hour'), (req, res) => {
