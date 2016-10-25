@@ -30,8 +30,9 @@ router.get('/affiliation/:affiliation', cache('1 hour'), (req, res) => {
       });
     },
     callback => {
-      const servant = new Servant();
-      servant.get(req.params.affiliation, data => {
+      Servant.get(req.params.affiliation)
+      .catch(error =>  ({ error }))
+      .then(data => {
         callback(null, {name: "servant", value: data});
       });
     },

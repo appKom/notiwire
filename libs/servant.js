@@ -1,57 +1,47 @@
-"use strict";
-var Affiliation = require("./affiliation");
-var Calendar = require('./calendar');
-var config = require('../config.json');
+const Affiliation = require("./affiliation");
+const Calendar = require('./calendar');
+const config = require('../config.json');
 
-var requests = require("./requests");
+const requests = require("./requests");
 
-var Servant = function() {
-  this.debug = 0;
-  this.debugString = '11:00-12:00 Steinar Hagen\n12:00-13:00 Espen Skarsbø Kristoffersen Olsen\n13:00-14:00 Aina Elisabeth Thunestveit';
+const MSG_NONE = 'Ingen ansvarlige nå';
+const MSG_ERROR = 'Frakoblet fra ansvarkalender';
+const MSG_MISSING_SUPPORT = 'Manglende støtte';
 
-  this.msgNone = 'Ingen ansvarlige nå';
-  this.msgError = 'Frakoblet fra ansvarkalender';
 
-  this.responseData = {};
-};
-
-Servant.prototype.get = function(affiliation, callback) {
-  var self = this;
-  if (callback == undefined) {
-    console.log('ERROR: Callback is required. In the callback you should insert the results into the DOM.');
-    return;
-  }
-  if (!Affiliation.hasHardware(affiliation) || !Affiliation.org[affiliation].hw.apis.servant) {
-    this.responseData.error = "Manglende støtte";
-    callback(this.responseData);
-    return;
-  }
-  var api = Affiliation.org[affiliation].hw.apis.servant;
-
-  // Receives the meeting plan for today
-  var calendar = new Calendar(api, config.calendarKey);
-  calendar.todayOnly();
-  calendar.get()
-  .catch((err, body) => {
-    self.responseData.error = self.msgError;
-    callback(self.responseData);
-  })
-  .then(servants => {
-    if(servants.length > 0) {
-      var currentServant = servants[0];
-      var now = new Date();
-      if (currentServant.start.date <= now && now <= currentServant.end.date) {
-        self.responseData.responsible = true;
-        self.responseData.message = currentServant.summary;
-        self.responseData.servants = servants;
-        return callback(self.responseData);
-      }
+const get = (affiliation, callback) => (
+  new Promise((fullfill, reject) => {
+    if (!Affiliation.hasHardware(affiliation) || !Affiliation.org[affiliation].hw.apis.servant) {
+      reject(MSG_MISSING_SUPPORT);
     }
-    // No servant in this timeslot
-    self.responseData.responsible = false;
-    self.responseData.message = self.msgNone;
-    callback(self.responseData);
-  });
-};
+    const api = Affiliation.org[affiliation].hw.apis.servant;
 
-module.exports = Servant;
+    // Receives the meeting plan for today
+    const calendar = new Calendar(api, config.calendarKey);
+    calendar.todayOnly();
+    calendar.get()
+    .catch((err, body) => {
+      reject(MSG_ERROR);
+    })
+    .then(servants => {
+      if(servants.length > 0) {
+        const currentServant = servants[0];
+        const now = new Date();
+        if (currentServant.start.date <= now && now <= currentServant.end.date) {
+          fullfill({
+            responsible: true,
+            message: currentServant.summary,
+            servants
+          })
+          return;
+        }
+      }
+      fullfill({
+        responsible: false,
+        message: MSG_NONE
+      });
+    });
+  })
+);
+
+module.exports = { get };
