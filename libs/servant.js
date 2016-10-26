@@ -20,9 +20,6 @@ const get = (affiliation, callback) => (
     const calendar = new Calendar(api, config.calendarKey);
     calendar.todayOnly();
     calendar.get()
-    .catch((err, body) => {
-      reject(MSG_ERROR);
-    })
     .then(servants => {
       if(servants.length > 0) {
         const currentServant = servants[0];
@@ -40,6 +37,9 @@ const get = (affiliation, callback) => (
         responsible: false,
         message: MSG_NONE
       });
+    })
+    .catch((err, body) => {
+      reject(MSG_ERROR);
     });
   })
 );

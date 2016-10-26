@@ -27,12 +27,12 @@ const get = (affiliation, callback) => (
     const calendar = new Calendar(api, config.calendarKey);
     calendar.todayOnly();
     calendar.get()
+    .then(meetings => {
+      fullfill(officeStatus(meetings));
+    })
     .catch((err, body) => {
       debug('Failed to fetch calendar for meeting', api, err, body);
       reject(MSG_ERROR);
-    })
-    .then(meetings => {
-      fullfill(officeStatus(meetings));
     });
   })
 );
