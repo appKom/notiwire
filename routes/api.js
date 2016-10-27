@@ -56,7 +56,7 @@ const reduceResultsToObject = results => (
   )
 );
 
-router.get('/affiliation/:affiliation', cache('1 hour'), (req, res) => {
+router.get(['/affiliation/:affiliation', '/office/:affiliation'], cache('1 hour'), (req, res) => {
   req.apicacheGroup = `affiliation_${req.params.affiliation}`;
   // Wait for all promises to finish and then return the results
   Promise.all(getDataSources(req))
