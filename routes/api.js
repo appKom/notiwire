@@ -5,6 +5,7 @@ const async = require('async');
 const express = require('express');
 const url = require('url');
 const router = express.Router();
+const cors = require('cors');
 
 const Cantina = require("../libs/cantina");
 const Coffee = require("../libs/coffee");
@@ -14,11 +15,7 @@ const Meeting = require("../libs/meeting");
 const Servant = require("../libs/servant");
 
 // Add CORS headers
-router.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  next();
-});
+router.use(cors());
 
 const getDataSources = (req) => {
   const affiliation = req.params.affiliation;
