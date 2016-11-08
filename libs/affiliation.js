@@ -98,8 +98,6 @@ var Affiliation = {
       hw: {
         office: "Abakuskontoret",
         apis: {
-          coffee: 'https://kaffe.abakus.no/coffee.txt',
-          light: 'http://informatikk.org/abakus/lys.txt',
           servant: null, // TODO
           meetings: '3ms24h7vpud4clrtt2grtadgm0%40group.calendar.google.com',
         },
