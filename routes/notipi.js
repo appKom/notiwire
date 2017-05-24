@@ -3,6 +3,7 @@ var express = require('express');
 var router = express.Router();
 
 var Coffee = require('../libs/coffee');
+var Status = require('../libs/status');
 
 router.use(function (req, res, next) {
   req.api_key = req.body.api_key;
@@ -58,17 +59,21 @@ router.post('/:affiliation/coffee', function(req, res) {
 
 // Status endpoint. Typically status if the office is open or not
 router.post('/:affiliation/status', function(req, res) {
+  const affiliation = req.affiliation.affiliation;
   var status = req.body.status;
   if(status === undefined || !status.match(/^(true|false)$/i)) {
     res.json({error: 'Mangler lysstatus'});
   }
-  apicache.clear('affiliation_' + req.params.affiliation);
+  apicache.clear('affiliation_' + affiliation);
   var statusDb = req.db.get('status');
   // Adding status
   statusDb.insert({
-    affiliation: req.affiliation.affiliation,
+    affiliation: affiliation,
     status: status.toLowerCase() === 'true',
     updated: new Date()
+  });
+  Status.get(req, affiliation).then((data) => {
+    req.io.to(affiliation).emit('status', data);
   });
   res.json({success: true});
 });
