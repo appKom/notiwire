@@ -19,6 +19,9 @@ const retrieveCoffeeForToday = (coffeeDb, affiliation) => (
         brewed: -1 // Latest first
       },
     }, (err, coffee) => {
+      if(err) {
+        return reject(err);
+      }
       const pots = coffee.length;
       let date = null;
       if(pots > 0) {
@@ -44,7 +47,10 @@ const get = (req, affiliation) => {
       return;
     }
     const coffeeDb = req.db.get('coffee');
-    retrieveCoffeeForToday(coffeeDb, affiliation).then(fullfill);
+    retrieveCoffeeForToday(coffeeDb, affiliation).then(fullfill).catch((err) => {
+      console.error('Failed to retrieve coffee', err);
+      reject('Klarte ikke hente kaffestatus');
+    });
   });
 }
 
