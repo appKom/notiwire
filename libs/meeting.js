@@ -2,7 +2,7 @@ const debug = require('debug')('meeting');
 const Affiliation = require('./affiliation');
 const requests = require('./requests');
 const Calendar = require('./calendar');
-const config = require('../config.json');
+const config = require('../config');
 
 const MSG_NONE = 'Ledig resten av dagen';
 const MSG_ERROR = 'Frakoblet fra møtekalender';

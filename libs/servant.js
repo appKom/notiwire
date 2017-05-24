@@ -1,6 +1,6 @@
 const Affiliation = require("./affiliation");
 const Calendar = require('./calendar');
-const config = require('../config.json');
+const config = require('../config');
 
 const requests = require("./requests");
 
