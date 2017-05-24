@@ -11,11 +11,11 @@ const retrieveCoffeeForToday = (coffeeDb, affiliation) => (
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     coffeeDb.find({
-      $query: {
-        affiliation: affiliation,
-        brewed: {$gte: today} // Only match pots today
-      },
-      $orderby: {
+      affiliation: affiliation,
+      brewed: {$gte: today} // Only match pots today
+    },
+    {
+      sort: {
         brewed: -1 // Latest first
       },
     }, (err, coffee) => {
@@ -62,14 +62,13 @@ const getAll = (req, affiliation, limit=10) => (
     }
     const coffeeDb = req.db.get('coffee');
     coffeeDb.find({
-      $query: {
-        affiliation: affiliation
-      },
-      $orderby: {
+      affiliation: affiliation
+    },
+    {
+      sort: {
         brewed: -1 // Latest first
-      }
-    }, {
-      limit
+      },
+      limit,
     }, (err, pots) => {
       fullfill({
         pots: pots.map(pot => pot.brewed)

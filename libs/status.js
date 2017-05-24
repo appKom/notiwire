@@ -26,11 +26,11 @@ const get = (req, affiliation) => (
     lastDay.setDate(lastDay.getDate() - 1);
     const statusDb = req.db.get('status');
     statusDb.findOne({
-      $query: {
-        affiliation: affiliation,
-        updated: {$gte: lastDay} // Only get status updates from the last 24h
-      },
-      $orderby: {
+      affiliation: affiliation,
+      updated: {$gte: lastDay} // Only get status updates from the last 24h
+    },
+    {
+      sort: {
         updated: -1 // Latest first
       }
     }, (err, status) => {
