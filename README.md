@@ -9,4 +9,15 @@ http://passoa.online.ntnu.no/api/affiliation/online
 
 http://passoa.online.ntnu.no/api/cantina/realfag
 
-#### See wiki for documentation
+## Setup
+
+Install mongodb
+
+```javascript
+npm install
+npm run init
+npm start
+```
+
+
+**See wiki for documentation**
