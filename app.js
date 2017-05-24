@@ -26,10 +26,14 @@ const server = http.Server(app);
 const io = require('socket.io')(server);
 
 io.on('connection', socket => {
-    console.log("Client connected.");
+    debug('Client connected.');
+    socket.on('subscribe', (room) => {
+        debug('Client connnected to room ' + room);
+        socket.join(room);
+    });
 
     socket.on('disconnect', () => {
-        console.log("Lost client.");
+        debug("Lost client.");
     });
 });
 

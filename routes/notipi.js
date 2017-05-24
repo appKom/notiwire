@@ -42,15 +42,16 @@ router.param('affiliation', function(req, res, next, id) {
 
 // Coffee endpoint
 router.post('/:affiliation/coffee', function(req, res) {
-  apicache.clear('affiliation_' + req.params.affiliation);
+  const affiliation = req.affiliation.affiliation;
+  apicache.clear('affiliation_' + affiliation);
   var coffee = req.db.get('coffee');
   // Add new coffee
   coffee.insert({
-    affiliation: req.affiliation.affiliation,
+    affiliation: affiliation,
     brewed: new Date() // now
   });
-  Coffee.get(req, req.params.affiliation).then(function(data) {
-    req.io.emit('coffee', data);
+  Coffee.get(req, affiliation).then((data) => {
+    req.io.to(affiliation).emit('coffee', data);
   });
   res.json({success: true});
 });
