@@ -54,16 +54,20 @@ const get = (req, affiliation) => {
   });
 }
 
-const getAll = (req, affiliation, limit=10) => (
+const getAll = (req, affiliation, since=null, limit=10) => (
   new Promise((fullfill, reject) => {
     if(!Affiliation.hasHardware(affiliation) || Affiliation.hasLegacyCoffee(affiliation)) {
       reject(msgMissingSupport);
       return;
     }
     const coffeeDb = req.db.get('coffee');
-    coffeeDb.find({
-      affiliation: affiliation
-    },
+    const filter = {
+      affiliation: affiliation,
+    };
+    if(since !== null) {
+      filter.brewed = {$gte: since};
+    }
+    coffeeDb.find(filter,
     {
       sort: {
         brewed: -1 // Latest first

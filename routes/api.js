@@ -71,7 +71,8 @@ router.get(['/affiliation/:affiliation', '/office/:affiliation'], cache('1 hour'
 
 router.get('/coffee/:affiliation', cache('1 hour'), (req, res) => {
   const limit = Math.round(Number(req.query.limit, 10)) || undefined;
-  Coffee.getAll(req, req.params.affiliation, limit)
+  const since = req.query.since ? new Date(req.query.since) : null;
+  Coffee.getAll(req, req.params.affiliation, since, limit)
   .catch(error =>  ({ error }))
   .then(data => {
     res.json(data);
