@@ -3,11 +3,11 @@ Online Notiwire
 
 API for various services relevant for students in Trondheim.
 
-Running on passoa.online.ntnu.no
+Running on notiwire.online.ntnu.no
 
-http://passoa.online.ntnu.no/api/affiliation/online
+https://notiwire.online.ntnu.no/api/affiliation/online
 
-http://passoa.online.ntnu.no/api/cantina/realfag
+https://notiwire.online.ntnu.no/api/cantina/realfag
 
 ## Setup
 
