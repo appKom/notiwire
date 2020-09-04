@@ -17,7 +17,7 @@
     "express": "^4.12.2",
     "log4js": "^1.1.1",
     "moment-timezone": "^0.5.13",
-    "mongodb": "^2.2.27",
+    "mongodb": "^3.6.1",
     "monk": "^5.0.2",
     "morgan": "^1.5.1",
     "nodemailer": "^4.0.1",
